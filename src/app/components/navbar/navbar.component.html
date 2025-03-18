@@ -29,6 +29,10 @@
     <!-- Menú de navegación en pantallas grandes -->
     <div class="hidden lg:flex justify-center h-16">
       <div class="flex space-x-6 px-4 py-2 bg-transparent">
+        <a *ngIf="showLink(userRole, 'home')" routerLink="/home" routerLinkActive="border" 
+           class="text-white text-lg px-3 py-2 rounded-md hover:underline transform transition-transform duration-300 hover:scale-110">
+          Inicio
+        </a>
         <a *ngIf="showLink(userRole, 'mapa')" routerLink="/mapa" routerLinkActive="border" 
            class="text-white text-lg px-3 py-2 rounded-md hover:underline transform transition-transform duration-300 hover:scale-110">
           Mapa

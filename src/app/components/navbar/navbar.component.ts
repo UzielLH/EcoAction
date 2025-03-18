@@ -17,9 +17,9 @@ export class NavbarComponent {
    // Método para verificar si el rol tiene acceso a una sección
    showLink(role: 'admin' | 'empresa' | 'user', link: string): boolean {
     const roleAccess: { [key in 'admin' | 'empresa' | 'user']: string[] } = {
-      'admin': ['mapa', 'metas', 'informacion', 'tips', 'colocacionPuntos', 'creacionMetas'],
-      'empresa': ['mapa', 'metas', 'informacion', 'tips', 'colocacionPuntos'],
-      'user': ['mapa', 'metas', 'informacion', 'tips']
+      'admin': ['home','mapa', 'metas', 'informacion', 'tips', 'colocacionPuntos', 'creacionMetas'],
+      'empresa': ['home','mapa', 'metas', 'informacion', 'tips', 'colocacionPuntos'],
+      'user': ['home','mapa', 'metas', 'informacion', 'tips']
     };
 
     return roleAccess[role]?.includes(link) ?? false;
