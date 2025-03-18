@@ -9,6 +9,7 @@ import { ColocacionPuntosComponent } from './pages/colocacion-puntos/colocacion-
 import { CreacionMetasComponent } from './pages/creacion-metas/creacion-metas.component';
 import { MetasCardComponent } from './components/metas-card/metas-card.component';
 import { MetasComponent } from './pages/metas/metas.component';
+import { AddFondosComponent } from './pages/add-fondos/add-fondos.component';
 
 export const routes: Routes = [
     {
@@ -45,6 +46,10 @@ export const routes: Routes = [
     },{
         path:'metas',
         component: MetasComponent
+    },
+    {
+        path:'addFondos',
+        component: AddFondosComponent
     },
     {
         path:'**',
