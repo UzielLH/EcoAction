@@ -12,16 +12,19 @@ import { CommonModule } from '@angular/common';
 export class NavbarComponent {
   isMenuOpen: boolean = false;
   isLoggedIn: boolean = false;
-  userRole: 'admin' | 'empresa' | 'user' = 'admin'; // Se Cambia segun el rol del usuario
+  userRole: string = 'admin'; // Se Cambia segun el rol del usuario user, empresa, admin
 
    // Método para verificar si el rol tiene acceso a una sección
-   showLink(role: 'admin' | 'empresa' | 'user', link: string): boolean {
-    const roleAccess: { [key in 'admin' | 'empresa' | 'user']: string[] } = {
+   showLink(role: string, link: string): boolean {
+    const roleAccess: { [key: string]: string[] } = {
       'admin': ['home','mapa', 'metas', 'informacion', 'tips', 'colocacionPuntos', 'creacionMetas'],
       'empresa': ['home','mapa', 'metas', 'informacion', 'tips', 'colocacionPuntos'],
       'user': ['home','mapa', 'metas', 'informacion', 'tips']
     };
-
-    return roleAccess[role]?.includes(link) ?? false;
+     // Si el rol no existe o no está definido, mostrar los enlaces de 'user'
+    if (!roleAccess[role]) {
+      return roleAccess['user'].includes(link);
+    }
+    return roleAccess[role].includes(link);
   }
 }

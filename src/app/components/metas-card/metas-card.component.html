@@ -1,1 +1,35 @@
-<p>metas-card works!</p>
+<div
+  class="relative overflow-hidden w-70 h-120 rounded-3xl cursor-pointer text-2xl kanit-bold shadow-lg"
+  style="background-color: #E0E019;"
+>
+  <div class="z-10 absolute w-full h-full peer"></div>
+
+  <!-- Efecto en la esquina superior izquierda -->
+  <div
+    class="absolute peer-hover:-top-20 peer-hover:-left-16 peer-hover:w-[140%] peer-hover:h-[140%] 
+    -top-32 -left-16 w-32 h-44 rounded-full transition-all duration-500"
+    style="background-color: #eeee63;"
+  ></div>
+  
+  <!-- Contenedor emergente que aparece en hover -->
+  <div
+    class="absolute flex flex-col items-center justify-center text-center text-xl bg-[#eeee63] 
+    transition-all duration-500 rounded-3xl w-full h-full opacity-0 peer-hover:opacity-100"
+  >
+    <img [src]="meta.linkImagen" alt="imagen" class="w-100 h-auto rounded-lg p-2">
+    <p class="text-gray-900 kanit-semibold">{{ meta.nombreMeta }}</p>
+    <p class="text-gray-700 kanit-semibold">{{ meta.cantidadMonedas }}/{{ meta.cantidadTotal }} monedas</p>
+    <p class="text-gray-600 text-sm kanit-semibold">{{ meta.descripcion }}</p>
+    <button class="px-4 py-2 bg-green-500 text-white kanit-bold rounded-lg shadow-md 
+      hover:bg-yellow-600 transition duration-300">
+      Donar
+    </button>
+
+  </div>
+
+  <!-- Contenido principal (siempre visible) -->
+  <div class="w-full h-full flex flex-col items-center justify-center text-center p-4 space-y-2">
+    <img [src]="meta.linkImagen" alt="imagen" class="w-32 h-32 rounded-full mb-2">
+    <p class="text-gray-900 kanit-semibold">{{ meta.nombreMeta }}</p>
+  </div>
+</div>

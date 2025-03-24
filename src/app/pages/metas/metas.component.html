@@ -1,1 +1,99 @@
-<p>metas works!</p>
+<div class="min-h-screen bg-gray-100 p-6">
+  <!-- Encabezado con botón y saldo -->
+  <div class="flex justify-between items-center mb-6">
+    <button (click)="mostrarFormulario = true" 
+      class="px-4 py-2 bg-green-500 text-white kanit-bold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
+      Crear meta
+    </button>
+
+    <div *ngIf="mostrarFormulario" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50">
+      <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h1 class="text-3xl kanit-bold text-gray-900 text-center">Creación de metas</h1>
+        <form [formGroup]="metaForm" (ngSubmit)="register()">
+          <div class="mb-4">
+            <label for="nombre" class="block text-gray-700 kanit-bold mb-2">Nombre:</label>
+            <input formControlName="nombre" type="text" id="nombre" class="w-full p-2 border rounded" />
+            <p class="text-sm text-red-500">{{ obtenerMensajesError('nombre') }}</p>
+          </div>
+    
+          <div class="mb-4">
+            <label for="cantidad" class="block text-gray-700 kanit-bold mb-2">Cantidad de Monedas:</label>
+            <input formControlName="cantidadMonedas" type="number" id="cantidad" class="w-full p-2 border rounded" />
+            <p class="text-sm text-red-500">{{ obtenerMensajesError('cantidadMonedas') }}</p>
+          </div>
+    
+          <div class="mb-4">
+            <label for="descripcion" class="block text-gray-700 kanit-bold mb-2">Descripción:</label>
+            <textarea formControlName="descripcion" id="descripcion" class="w-full p-2 border rounded"></textarea>
+            <p class="text-sm text-red-500">{{ obtenerMensajesError('descripcion') }}</p>
+          </div>
+
+          <div class="form-group mb-4">
+            <label for="imagen" class="block text-gray-700 kanit-bold mb-2">Imagen:</label>
+            <input formControlName="imagen" type="file" id="imagen" name="imagen" accept=".jpg, .png" class="kanit-extralight shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          </div>
+          <p class="text-sm text-red-500 p-1 kanit-extralight">
+            {{obtenerMensajesError('imagen')}}
+          </p>
+    
+          <div class="flex justify-between">
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Crear meta</button>
+            <button type="button" (click)="mostrarFormulario = false" class="bg-red-500 text-white px-4 py-2 rounded">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+
+
+
+
+    <h1 class="text-3xl kanit-bold text-gray-900 text-center flex-1">Metas a lograr</h1>
+    
+    <p class="text-xl kanit-semibold text-gray-800">Saldo: $1000</p>
+  </div>
+
+  <!-- Contenedor de las tarjetas -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+    <div *ngFor="let meta of metas"
+      class="relative overflow-hidden w-70 h-120 rounded-3xl cursor-pointer text-2xl kanit-bold shadow-lg"
+      style="background-color: #E0E019;"
+    >
+      <div class="z-10 absolute w-full h-full peer"></div>
+
+      <!-- Efecto en la esquina superior izquierda -->
+      <div
+        class="absolute peer-hover:-top-20 peer-hover:-left-16 peer-hover:w-[140%] peer-hover:h-[140%] 
+        -top-32 -left-16 w-32 h-44 rounded-full transition-all duration-500"
+        style="background-color: #eeee63;"
+      ></div>
+      
+      <!-- Contenedor emergente que aparece en hover -->
+<div
+class="absolute flex flex-col items-center justify-center text-center text-xl bg-[#eeee63] 
+transition-all duration-500 rounded-3xl w-full h-full opacity-0 hover:opacity-100 peer-hover:opacity-100 
+hover:pointer-events-auto peer-hover:pointer-events-auto z-10"
+>
+
+        <img [src]="meta.linkImagen" alt="imagen" class="w-100 h-auto rounded-lg p-2">
+        <p class="text-gray-900 kanit-semibold">{{ meta.nombreMeta }}</p>
+        <p class="text-gray-700 kanit-semibold">{{ meta.cantidadMonedas }}/{{ meta.cantidadTotal }} monedas</p>
+        <p class="text-gray-600 text-sm kanit-semibold">{{ meta.descripcion }}</p>
+        <button (click)="handleDonateClick()" 
+  class="px-4 py-2 bg-green-500 text-white kanit-bold rounded-lg shadow-md 
+  hover:bg-green-600 transition duration-300 pointer-events-auto z-20">
+  Donar
+</button>
+
+
+
+      </div>
+
+      <!-- Contenido principal (siempre visible) -->
+      <div class="w-full h-full flex flex-col items-center justify-center text-center p-4 space-y-2">
+        <img [src]="meta.linkImagen" alt="imagen" class="w-32 h-32 rounded-full mb-2">
+        <p class="text-gray-900 kanit-semibold">{{ meta.nombreMeta }}</p>
+      </div>
+    </div>
+  </div>
+</div>

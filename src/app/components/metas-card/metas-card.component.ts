@@ -1,4 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import Swal from 'sweetalert2';
+
+interface Meta {
+  nombreMeta: string;
+  cantidadMonedas: number;
+  cantidadTotal: number;
+  descripcion: string;
+  linkImagen: string;
+}
 
 @Component({
   selector: 'app-metas-card',
@@ -7,5 +16,7 @@ import { Component } from '@angular/core';
   styles: ''
 })
 export class MetasCardComponent {
+  @Input() meta!: Meta;
+  @Input() userRole: 'user' | 'admin' | 'empresa' | null = null;
 
 }

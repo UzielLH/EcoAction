@@ -1,1 +1,36 @@
-<p>creacion-metas works!</p>
+<div class="meta-creation-container flex flex-col items-center mt-10">
+  <h1 class="text-3xl kanit-bold text-gray-900 text-center flex-1">Creación de metas</h1>
+  <form  [formGroup]="metaForm" class="w-full max-w-sm" (ngSubmit)="register()">
+      <div class="form-group mb-4">
+        <label for="nombre" class="block text-gray-700 kanit-bold mb-2">Nombre:</label>
+        <input formControlName="nombre" type="text" id="nombre" name="nombre" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+      </div>
+      <p class="text-sm text-red-500 p-1 kanit-extralight">
+        {{obtenerMensajesError('nombre')}}
+      </p>
+      <div class="form-group mb-4">
+        <label for="cantidad" class="block text-gray-700 kanit-bold mb-2">Cantidad de Monedas:</label>
+        <input formControlName="cantidadMonedas" type="number" id="cantidad" name="cantidad" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+      </div>
+      <p class="text-sm text-red-500 p-1 kanit-extralight">
+        {{obtenerMensajesError('cantidadMonedas')}}
+      </p>
+      <div class="form-group mb-4">
+        <label for="descripcion" class="block text-gray-700 kanit-bold mb-2">Descripción:</label>
+        <textarea formControlName="descripcion" id="descripcion" name="descripcion" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+      </div>
+      <p class="text-sm text-red-500 p-1 kanit-extralight">
+        {{obtenerMensajesError('descripcion')}}
+      </p>
+      <div class="form-group mb-4">
+        <label for="imagen" class="block text-gray-700 kanit-bold mb-2">Imagen:</label>
+        <input formControlName="imagen" type="file" id="imagen" name="imagen" accept=".jpg, .png" class="kanit-extralight shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+      </div>
+      <p class="text-sm text-red-500 p-1 kanit-extralight">
+        {{obtenerMensajesError('imagen')}}
+      </p>
+      <div class="flex justify-center">
+        <button type="submit" class="btn-crear-meta bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Crear meta</button>
+      </div>
+    </form>
+  </div>
