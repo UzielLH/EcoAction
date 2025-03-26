@@ -1,1 +1,63 @@
-<p>tips works!</p>
+<div class="flex flex-col items-center mt-15">
+  <div class="flex justify-center items-center relative overflow-hidden">
+    <!-- Card anterior con efecto de fade -->
+    <div [@fadeAnimation]="visibilityState" class="hidden md:block w-60 h-112 opacity-50 transform scale-90 origin-top transition-all duration-700 ease-in-out relative mr-8 hover:opacity-70">
+      <img [src]="cards[prevIndex].image" [alt]="cards[prevIndex].alt" class="w-full h-auto transition-transform duration-500" />
+      <!-- Badge con número de card -->
+      <div class="absolute -left-6 -top-7 w-16 h-16 bg-[#3BE019] rounded-full flex items-center justify-center transition-all duration-500">
+        <p class="text-white text-xl font-bold">{{ cards[prevIndex].id }}</p>
+      </div>
+      <h2 class="font-bold text-lg mt-2 text-center transition-all duration-500">{{ cards[prevIndex].title }}</h2>
+      <p class="text-sm text-zinc-500 text-justify transition-opacity duration-700 mt-4">
+        {{ cards[prevIndex].description }}
+      </p>
+    </div>
+
+    <!-- Card actual con efecto de fade (AGRANDADA) -->
+    <div [@fadeAnimation]="visibilityState" class="w-96 h-120 bg-white shadow-[0px_0px_15px_rgba(0,0,0,0.09)] p-9 space-y-3 relative overflow-hidden mx-6 transform scale-100 transition-all duration-700 ease-in-out flex flex-col">
+      <div class="w-24 h-24 bg-[#3BE019] rounded-full absolute -right-5 -top-7 transition-transform duration-500">
+        <p class="absolute bottom-6 left-7 text-white text-3xl font-bold transition-all">
+          {{ cards[currentIndex].id }}
+        </p>
+      </div>
+      <div class="w-full transition-opacity duration-500">
+        <img [src]="cards[currentIndex].image" [alt]="cards[currentIndex].alt" class="w-full h-auto transition-all duration-700" />
+      </div>
+      <h1 class="font-bold text-xl text-center transition-all duration-500">{{ cards[currentIndex].title }}</h1>
+      <p class="text-base text-zinc-500 leading-6 text-justify transition-all duration-700 mt-4">
+        {{ cards[currentIndex].description }}
+      </p>
+    </div>
+
+    <!-- Card siguiente con efecto de fade -->
+    <div [@fadeAnimation]="visibilityState" class="hidden md:block w-60 h-112 opacity-50 transform scale-90 origin-top transition-all duration-700 ease-in-out relative ml-8 hover:opacity-70">
+      <img [src]="cards[nextIndex].image" [alt]="cards[nextIndex].alt" class="w-full h-auto transition-transform duration-500" />
+      <!-- Badge con número de card -->
+      <div class="absolute -right-6 -top-7 w-16 h-16 bg-[#3BE019] rounded-full flex items-center justify-center transition-all duration-500">
+        <p class="text-white text-xl font-bold">{{ cards[nextIndex].id }}</p>
+      </div>
+      <h2 class="font-bold text-lg mt-2 text-center transition-all duration-500">{{ cards[nextIndex].title }}</h2>
+      <p class="text-sm text-zinc-500 text-justify transition-opacity duration-700 mt-4">
+        {{ cards[nextIndex].description }}
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Controles de navegación fijos -->
+<button 
+  (click)="prev()" 
+  class="fixed left-4 top-1/2 transform -translate-y-1/2 p-0 transition-transform duration-300 hover:scale-110"
+>
+  <div class="flex items-center justify-center w-12 h-12 rounded-full bg-[#26941e] hover:bg-[#228a17] transition-colors duration-300">
+    <i class="fa-solid fa-backward-step text-4xl transition-all duration-300" style="color: white;"></i>
+  </div>
+</button>
+<button 
+  (click)="next()" 
+  class="fixed right-4 top-1/2 transform -translate-y-1/2 p-0 transition-transform duration-300 hover:scale-110"
+>
+  <div class="flex items-center justify-center w-12 h-12 rounded-full bg-[#26941e] hover:bg-[#228a17] transition-colors duration-300">
+    <i class="fa-solid fa-forward-step text-4xl transition-all duration-300" style="color: white;"></i>
+  </div>
+</button>
