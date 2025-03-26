@@ -18,9 +18,10 @@ interface Meta {
 })
 export class MetasComponent {
   saldoPersona=100;
-  userRole: string= "admin"; // o null si no está logueado user, empresa, admin
+  userRole: string= "user"; // o null si no está logueado user, empresa, admin
   mostrarFormulario = false;
   mostrarFormularioDonacion = false;
+  mostrarFormularioSaldo = false;
   private router = inject(Router); // Definir router correctamente
 
 
@@ -59,6 +60,7 @@ export class MetasComponent {
   private fb=inject(FormBuilder);
   metaForm!: FormGroup;
   donacionForm!: FormGroup;
+  SaldoForm!: FormGroup;
   constructor(){
     this.metaForm=this.fb.group({
       nombre: ['',  [Validators.required, Validators.minLength(5)]],
@@ -68,6 +70,10 @@ export class MetasComponent {
     });
     this.donacionForm=this.fb.group({
       cantidad: ['', [Validators.required, Validators.min(1)]]
+    });
+    this.SaldoForm=this.fb.group({
+      saldo: ['', [Validators.required, Validators.min(1)]],
+      tarjeta: ['', [Validators.required, Validators.pattern('^[0-9]{16}$')]]
     });
   }
 
@@ -99,28 +105,58 @@ export class MetasComponent {
       });
     }
 
-  registerDonation() {
-    if (this.donacionForm.invalid) {
-      this.donacionForm.markAllAsTouched();
+    registerDonation() {
+      if (this.donacionForm.invalid) {
+        this.donacionForm.markAllAsTouched();
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo realizar la donación. Por favor, revise los campos o la conexión.',
+          icon: 'error',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        return; // Add this to prevent further execution when form is invalid
+      }
+      
+      // Only execute this part if the form is valid
+      console.log('Donando...', this.donacionForm.value);
+    
+      Swal.fire({
+        title: 'Donación realizada',
+        text: 'La donación ha sido realizada exitosamente.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
+      }).then(() => {
+        this.mostrarFormularioDonacion = false;
+        this.donacionForm.reset();
+        this.router.navigate(['/metas']);
+      });
+    }
+    
+  registerSaldo() {
+    if (this.SaldoForm.invalid) {
+      this.SaldoForm.markAllAsTouched();
       Swal.fire({
         title: 'Error',
-        text: 'No se pudo realizar la donación. Por favor, revise los campos o la conexión.',
+        text: 'No se pudo recargar el saldo. Por favor, revise los campos o la conexión.',
         icon: 'error',
         timer: 2000,
         showConfirmButton: false
       });
+      return;
     }
-    console.log('Donando...', this.donacionForm.value);
+    console.log('Recargando saldo...', this.SaldoForm.value);
 
     Swal.fire({
-      title: 'Donación realizada',
-      text: 'La donación ha sido realizada exitosamente.',
+      title: 'Saldo recargado',
+      text: 'El saldo ha sido recargado exitosamente.',
       icon: 'success',
       timer: 2000,
       showConfirmButton: false
     }).then(() => {
-      this.mostrarFormularioDonacion = false;
-      this.donacionForm.reset();
+      this.mostrarFormularioSaldo = false;
+      this.SaldoForm.reset();
       this.router.navigate(['/metas']);
     });
   }
@@ -160,6 +196,27 @@ export class MetasComponent {
             break;
           case 'min':
             mensajes.push('El valor mínimo es 1');
+            break;
+        }
+      });
+    }
+    return mensajes;
+  }
+
+  obtenerMensajesErrorSaldo(controlName: string) {
+    const control = this.SaldoForm.get(controlName);
+    const mensajes: any[] = [];
+    if (control?.errors && control?.touched) {
+      Object.keys(control.errors).forEach(keyError => {
+        switch (keyError) {
+          case 'required':
+            mensajes.push('Este campo es requerido');
+            break;
+          case 'min':
+            mensajes.push('El valor mínimo es 1');
+            break;
+          case 'pattern':
+            mensajes.push('El formato no es correcto');
             break;
         }
       });

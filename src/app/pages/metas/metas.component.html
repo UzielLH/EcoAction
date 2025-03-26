@@ -1,24 +1,32 @@
 <div class="min-h-screen bg-gray-100 p-6">
-  <!-- Encabezado con botón y saldo -->
-  <div class="relative flex justify-center items-center mb-6">
+  <!-- Encabezado con título -->
+  <div class="text-center mb-6">
+    <h1 class="text-3xl kanit-bold text-gray-900">Metas a lograr</h1>
+  </div>
+
+  <!-- Contenedor de botones y saldo -->
+  <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-6">
     <!-- Mostrar botón "Crear meta" solo si el rol es admin -->
     <button *ngIf="userRole === 'admin'" 
-    (click)="mostrarFormulario = true"
-
-      class="absolute left-0 px-4 py-2 bg-green-500 text-white kanit-bold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
+      (click)="mostrarFormulario = true"
+      class="px-4 py-2 bg-green-500 text-white kanit-bold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
       Crear meta
     </button>
 
-    <!-- Título centrado -->
-    <h1 class="text-3xl kanit-bold text-gray-900 text-center">Metas a lograr</h1>
+    <!-- Mostrar botón "Agregar Saldo" solo si el rol es user -->
+    <button *ngIf="userRole === 'user'" 
+      (click)="mostrarFormularioSaldo = true"
+      class="px-4 py-2 bg-green-500 text-white kanit-bold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
+      Agregar Saldo
+    </button>
 
     <!-- Mostrar saldo solo si el rol es user, pero mantener el espacio reservado -->
     <p *ngIf="userRole === 'user'; else emptySaldo" 
-      class="absolute right-0 text-xl kanit-semibold text-gray-800">
+      class="text-xl kanit-semibold text-gray-800">
       Saldo: {{ saldoPersona | currency }}
     </p>
     <ng-template #emptySaldo>
-      <div class="absolute right-0 w-32"></div> <!-- Espacio reservado para mantener el diseño -->
+      <div class="w-32"></div> <!-- Espacio reservado para mantener el diseño -->
     </ng-template>
   </div>
 
@@ -57,7 +65,7 @@
     
         <div class="flex justify-between">
           <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Crear meta</button>
-          <button type="button" (click)="mostrarFormulario = false" class="bg-red-500 text-white px-4 py-2 rounded">Cancelar</button>
+          <button type="button" (click)="mostrarFormulario = false" class="bg-red-500 text-white px-4 py-2 rounded ">Cancelar</button>
         </div>
       </form>
     </div>
@@ -100,19 +108,57 @@
 
   <div *ngIf="mostrarFormularioDonacion" class="fixed inset-0 flex justify-center items-center z-50">
     <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-      <h1 class="text-3xl kanit-bold text-gray-900 text-center">Ingresa tu donación</h1>
+      <h1 class="text-3xl kanit-bold text-gray-900 text-center ">Ingresa tu donación</h1>
       <form [formGroup]="donacionForm" (ngSubmit)="registerDonation()">
 
     
         <div class="mb-4">
-          <label for="cantidad" class="block text-gray-700 kanit-bold mb-2">Cantidad a donar:</label>
-          <input formControlName="cantidad" type="number" id="cantidad" class="w-full p-2 border rounded" />
-          <p class="text-sm text-red-500">{{ obtenerMensajesErrorDonacion('cantidad') }}</p>
+          <label for="cantidad" class="block text-gray-700 kanit-bold mb-2 text-base">Cantidad a donar:</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <span class="text-gray-500">$</span>
+            </div>
+            <input formControlName="cantidad" type="number" id="cantidad" class="w-full p-2 pl-7 border rounded" />
+          </div>
+          <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorDonacion('cantidad') }}</p>
         </div>
     
         <div class="flex justify-between">
-          <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded kanit-extralight">Donar</button>
-          <button type="button" (click)="mostrarFormularioDonacion = false" class="bg-red-500 text-white px-4 py-2 rounded kanit-extralight">Cancelar</button>
+          <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded kanit-extralight text-lg">Donar</button>
+          <button type="button" (click)="mostrarFormularioDonacion = false" class="bg-red-500 text-white px-4 py-2 rounded kanit-extralight text-lg">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Fondo desenfocado cuando el formulario Saldo está activo -->
+  <div *ngIf="mostrarFormularioSaldo" class="fixed inset-0 backdrop-blur-md z-40"></div>
+
+  <div *ngIf="mostrarFormularioSaldo" class="fixed inset-0 flex justify-center items-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+      <h1 class="text-3xl kanit-bold text-gray-900 text-center">Ingresa saldo a depositar</h1>
+      <form [formGroup]="SaldoForm" (ngSubmit)="registerSaldo()">
+
+    
+        <div class="mb-4">
+          <label for="cantidad" class="block text-gray-700 kanit-bold mb-2 text-base">Saldo a agregar:</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <span class="text-gray-500">$</span>
+            </div>
+            <input formControlName="saldo" type="number" id="cantidad" class="w-full p-2 pl-7 border rounded" />
+          </div>
+          <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorSaldo('saldo') }}</p>
+        </div>
+        <div class="mb-4">
+          <label for="cantidad" class="block text-gray-700 kanit-bold mb-2 text-base">Tarjeta:</label>
+          <input formControlName="tarjeta" type="text" id="cantidad" class="w-full p-2 border rounded" placeholder="xxxx xxxx xxxx xxxx" maxlength="16"/>
+          <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorSaldo('tarjeta') }}</p>
+        </div>
+        <div class="flex justify-between">
+          <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded kanit-extralight text-lg">Depositar</button>
+          <button type="button" (click)="mostrarFormularioSaldo = false" class="bg-red-500 text-white px-4 py-2 rounded kanit-extralight text-lg">Cancelar</button>
         </div>
       </form>
     </div>
