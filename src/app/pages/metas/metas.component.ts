@@ -17,8 +17,10 @@ interface Meta {
   styles: ``
 })
 export class MetasComponent {
+  saldoPersona=100;
   userRole: string= "admin"; // o null si no está logueado user, empresa, admin
   mostrarFormulario = false;
+  mostrarFormularioDonacion = false;
   private router = inject(Router); // Definir router correctamente
 
 
@@ -52,47 +54,11 @@ export class MetasComponent {
       linkImagen: "https://www.muyinteresante.com/wp-content/uploads/sites/5/2024/06/04/665f0461a9ae0.jpeg"
     }
   ];
-  handleDonateClick() {
-    console.log("Botón de donar clickeado");
-    
-    if (this.userRole === "") {
-      Swal.fire({
-        icon: 'warning',
-        title: 'No estás logueado',
-        text: 'Por favor, inicia sesión para poder donar.',
-      });
-    } else {
-      Swal.fire({
-        title: 'Ingrese la cantidad a donar',
-        input: 'number',
-        inputAttributes: {
-          min: '1',
-          step: '1'
-        },
-        showCancelButton: true,
-        confirmButtonText: 'Donar',
-        cancelButtonText: 'Cancelar',
-        inputValidator: (value) => {
-          if (!value || isNaN(Number(value)) || Number(value) <= 0) {
-            return 'Ingrese una cantidad válida';
-          }
-          return null; // ✅ Se soluciona TS7030
-        }
-      }).then((result) => {
-        if (result.isConfirmed) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Donación realizada',
-            text: `Has donado ${result.value} monedas. ¡Gracias por tu apoyo!`,
-          });
-        }
-      });
-    }
-  }
   
   
   private fb=inject(FormBuilder);
   metaForm!: FormGroup;
+  donacionForm!: FormGroup;
   constructor(){
     this.metaForm=this.fb.group({
       nombre: ['',  [Validators.required, Validators.minLength(5)]],
@@ -100,7 +66,11 @@ export class MetasComponent {
       descripcion: ['', [Validators.required, Validators.minLength(15)]],
       imagen: ['', [Validators.required]]
     });
+    this.donacionForm=this.fb.group({
+      cantidad: ['', [Validators.required, Validators.min(1)]]
+    });
   }
+
   register() {
       if (this.metaForm.invalid) {
         this.metaForm.markAllAsTouched();
@@ -124,9 +94,36 @@ export class MetasComponent {
         showConfirmButton: false
       }).then(() => {
         this.mostrarFormulario = false;
+        this.metaForm.reset();
         this.router.navigate(['/metas']);
       });
     }
+
+  registerDonation() {
+    if (this.donacionForm.invalid) {
+      this.donacionForm.markAllAsTouched();
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo realizar la donación. Por favor, revise los campos o la conexión.',
+        icon: 'error',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    }
+    console.log('Donando...', this.donacionForm.value);
+
+    Swal.fire({
+      title: 'Donación realizada',
+      text: 'La donación ha sido realizada exitosamente.',
+      icon: 'success',
+      timer: 2000,
+      showConfirmButton: false
+    }).then(() => {
+      this.mostrarFormularioDonacion = false;
+      this.donacionForm.reset();
+      this.router.navigate(['/metas']);
+    });
+  }
 
   obtenerMensajesError(controlName: string) {
     const control = this.metaForm.get(controlName);
@@ -142,6 +139,24 @@ export class MetasComponent {
             break;
           case 'pattern':
             mensajes.push('El formato no es correcto');
+            break;
+          case 'min':
+            mensajes.push('El valor mínimo es 1');
+            break;
+        }
+      });
+    }
+    return mensajes;
+  }
+
+  obtenerMensajesErrorDonacion(controlName: string) {
+    const control = this.donacionForm.get(controlName);
+    const mensajes: any[] = [];
+    if (control?.errors && control?.touched) {
+      Object.keys(control.errors).forEach(keyError => {
+        switch (keyError) {
+          case 'required':
+            mensajes.push('Este campo es requerido');
             break;
           case 'min':
             mensajes.push('El valor mínimo es 1');
