@@ -106,6 +106,17 @@ export class MetasComponent {
     }
 
     registerDonation() {
+      if (!this.userRole) {
+        Swal.fire({
+          title: 'Inicia sesión',
+          text: 'Debes iniciar sesión para poder realizar una donación.',
+          icon: 'warning',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        return; // Detener ejecución si no hay rol
+      }
+    
       if (this.donacionForm.invalid) {
         this.donacionForm.markAllAsTouched();
         Swal.fire({
@@ -115,10 +126,9 @@ export class MetasComponent {
           timer: 2000,
           showConfirmButton: false
         });
-        return; // Add this to prevent further execution when form is invalid
+        return;
       }
-      
-      // Only execute this part if the form is valid
+    
       console.log('Donando...', this.donacionForm.value);
     
       Swal.fire({
