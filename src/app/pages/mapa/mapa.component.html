@@ -1,7 +1,20 @@
-<h1 class="text-4xl text-center pt-2 font-bold">Recicladoras cerca de ti</h1>
+<h1 class="text-4xl text-center pt-2 kanit-bold">Recicladoras cerca de ti</h1>
 
 <div class="pt-5 flex justify-center">
     <iframe src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d108478.52556213207!2d-96.73126621339118!3d17.07772769013767!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1srecicladora!5e0!3m2!1ses!2smx!4v1742343496800!5m2!1ses!2smx" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
 </div>
 
-<p class="text-2xl pt-3 p-10">Encuentra las mejores recicladoras cerca de ti en México. Utiliza nuestro mapa interactivo para localizar las recicladoras más cercanas a ti y descubre más información sobre cada una de ellas en nuestro listado detallado.</p>
+<p class="text-2xl pt-3 p-10 kanit-thin">Encuentra las mejores recicladoras cerca de ti en México. Utiliza nuestro mapa interactivo para localizar las recicladoras más cercanas a ti y descubre más información sobre cada una de ellas en nuestro listado detallado.</p>
+
+<!-- Contenedor de las tarjetas -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-5">
+    <div *ngFor="let recicladora of recicladoras" class="bg-white shadow-md rounded-lg overflow-hidden">
+      <img [src]="recicladora.imagen" alt="{{ recicladora.nombre }}" class="w-full h-48 object-cover">
+      <div class="p-5">
+        <h2 class="text-xl kanit-bold mb-2">{{ recicladora.nombre }}</h2>
+        <p class="text-gray-700 kanit-extralight"><strong>Dirección:</strong> {{ recicladora.direccion }}</p>
+        <p class="text-gray-700 kanit-extralight"><strong>Teléfono:</strong> {{ recicladora.telefono }}</p>
+        <p class="text-gray-700 kanit-extralight"><strong>Horario:</strong> {{ recicladora.horario }}</p>
+      </div>
+    </div>
+  </div>

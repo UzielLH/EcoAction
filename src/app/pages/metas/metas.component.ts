@@ -18,7 +18,7 @@ interface Meta {
 })
 export class MetasComponent {
   saldoPersona=100;
-  userRole: string= "user"; // o null si no está logueado user, empresa, admin
+  userRole: string= ""; // o null si no está logueado user, empresa, admin
   mostrarFormulario = false;
   mostrarFormularioDonacion = false;
   mostrarFormularioSaldo = false;
