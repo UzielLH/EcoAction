@@ -18,7 +18,7 @@ interface Meta {
 })
 export class MetasComponent {
   saldoPersona=100;
-  userRole: string= ""; // o null si no está logueado user, empresa, admin
+  userRole: string= "user"; // o null si no está logueado user, empresa, admin
   mostrarFormulario = false;
   mostrarFormularioDonacion = false;
   mostrarFormularioSaldo = false;
@@ -73,7 +73,10 @@ export class MetasComponent {
     });
     this.SaldoForm=this.fb.group({
       saldo: ['', [Validators.required, Validators.min(1)]],
-      tarjeta: ['', [Validators.required, Validators.pattern('^[0-9]{16}$')]]
+      notarjeta: ['', [Validators.required, Validators.pattern('^[0-9]{16}$')]],
+      nombreTarjeta:['',[Validators.required, Validators.minLength(5)]],
+      vencimiento:['',[Validators.required, Validators.pattern('^(0[1-9]|1[0-2])/[0-9]{2}$')]],
+      cvc:['',[Validators.required, Validators.pattern('^[0-9]{3}$')]]
     });
   }
 
@@ -169,6 +172,21 @@ export class MetasComponent {
       this.SaldoForm.reset();
       this.router.navigate(['/metas']);
     });
+  }
+
+  formatVencimiento(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, ''); 
+  
+    if (value.length > 2) {
+      value = value.slice(0, 2) + '/' + value.slice(2, 4); 
+    }
+  
+    input.value = value;
+  }
+  validateNumericInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/[^0-9]/g, '');
   }
 
   obtenerMensajesError(controlName: string) {
