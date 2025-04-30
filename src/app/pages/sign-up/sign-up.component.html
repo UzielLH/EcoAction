@@ -87,7 +87,11 @@
           {{obtenerMensajesErrorEmpresa('horario')}}
         </p>
         <label class="block text-gray-700 kanit-semibold mb-1">Fotografía del local:</label>
-        <input type="text"  formControlName="imagen" placeholder="Ingresa el link de la foto" class="w-full p-3 border rounded-lg mb-4 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
+        <input 
+          type="file" 
+          formControlName="imagen" 
+          accept="image/*" 
+          class="w-full p-3 border rounded-lg mb-4 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
         <p class="text-sm text-red-500 p-1 kanit-extralight">
           {{obtenerMensajesErrorEmpresa('imagen')}}
         </p>
