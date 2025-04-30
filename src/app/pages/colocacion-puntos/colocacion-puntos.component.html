@@ -1,5 +1,4 @@
-<!-- From Uiverse.io by Praashoo7 --> 
-<!-- From Uiverse.io by Praashoo7 --> 
+<!-- From Uiverse.io by Praashoo7 - Modified version --> 
 <style>
   /* Importar la fuente Kanit desde Google Fonts */
   @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;700&display=swap');
@@ -8,165 +7,166 @@
   .form, .form * {
     font-family: 'Kanit', sans-serif;
   }
-    .form {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding-left: 1.5em;
-      padding-right: 1.5em;
-      padding-bottom: 0.4em;
-      background-color: #7ec219; /* Lime green background */
-      border-radius: 20px;
-      transition: .4s ease-in-out;
-      max-width: 650px;
-      margin: 7em auto 0; /* Changed from 2em to 5em to add more top space */
-      border: 2px solid #e0cb19; /* Golden yellow border */
-    }
-    
-    .form:hover {
-      transform: scale(1.03);
-      box-shadow: 0 0 15px #ade063; /* Light lime glow effect */
-    }
-    
-    #heading {
-        text-align: center;
-        margin: 1.2em;
-        color: white; /* Changed from yellow to white for better readability */
-        font-size: 1.2em;
-        font-weight: bold;
-        text-shadow: 1px 1px 3px #3be019; /* Darker shadow for better contrast */
-    }
-    
-    .field {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5em;
-      border-radius: 20px;
-      padding: 0.5em;
-      border: none;
-      outline: none;
-      color: white;
-      background-color: #9dca59; /* Light lime for input fields */
-      box-shadow: inset 2px 5px 10px #8fe019; /* Lime green inset shadow */
-      border: 1px solid #3be019; /* Bright green border */
-      margin-bottom: 0.5em;
-    }
-    
-    .input-icon {
-      height: 1.2em;
-      width: 1.2em;
-      fill: white; /* Changed from golden yellow to white for better visibility */
-    }
-    
-    .input-field {
-      background: none;
-      border: none;
-      outline: none;
-      width: 100%;
-      color: white; /* White text */
-      font-size: 0.9em;
-      font-weight: bold; /* Added bold for input text */
-    }
-    
-    .input-field::placeholder {
-      color: white; /* Changed from yellow to white */
-      opacity: 0.7; /* Added opacity for placeholder text */
-      font-weight: bold; /* Added bold for placeholder text */
-    }
-    
-    .form .btn {
-      display: flex;
-      justify-content: space-between;
-      flex-direction: row;
-      align-items: center;
-      margin-top: 1.8em;
-      margin-bottom: 2em;
-    }
-    
-    .button1 {
-      width: 45%;
-      padding: 0.5em;
-      border-radius: 5px;
-      border: none;
-      outline: none;
-      transition: .4s ease-in-out;
-      background-color: #3be019; /* Bright green for add button */
-      color: white; /* White text */
-      font-size: 0.9em;
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 1.5em;
+    padding-right: 1.5em;
+    padding-bottom: 0.4em;
+    background-color: #ffffff; /* Cambiado a fondo blanco */
+    border-radius: 20px;
+    transition: .4s ease-in-out;
+    max-width: 650px;
+    margin: 5em auto 0; 
+    border: 2px solid #000000; /* Borde verde claro */
+  }
+  
+  .form:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 15px rgba(126, 126, 126, 0.5); /* Sombra verde más sutil */
+  }
+  
+  #heading {
+      text-align: center;
+      margin: 1.2em;
+      color: #333333; /* Texto oscuro casi negro */
+      font-size: 1.2em;
       font-weight: bold;
-    }
-    
-    .button1:hover {
-      background-color: #07e032; /* Emerald green on hover */
-      transform: translateY(-2px);
-      box-shadow: 0 5px 10px #ade063; /* Light lime shadow */
-    }
-    
-    .button1:disabled {
-      background-color: #a7d65f;
-      transform: none;
-      box-shadow: none;
-      cursor: not-allowed;
-      opacity: 0.7;
-    }
-    
-    .button3 {
-      width: 45%;
-      padding: 0.5em;
-      border-radius: 5px;
-      border: none;
-      outline: none;
-      transition: .4s ease-in-out;
-      background-color: #e0cb19; /* Golden yellow for delete button */
-      color: white; /* White text */
-      font-size: 0.9em;
-      font-weight: bold;
-    }
-    
-    .button3:hover {
-      background-color: #e0e019; /* Bright yellow on hover */
-      transform: translateY(-2px);
-      box-shadow: 0 5px 10px #ade063; /* Light lime shadow */
-    }
-    
-    .error-message {
-      color: #ffffff;
-      font-size: 0.8em;
-      margin-top: -0.4em;
-      margin-bottom: 0.8em;
-      padding-left: 1em;
-      font-weight: bold;
-    }
+      text-shadow: 1px 1px 2px rgba(126, 194, 25, 0.3); /* Sombra verde sutil */
+  }
+  
+  .field {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    border-radius: 20px;
+    padding: 0.5em;
+    border: none;
+    outline: none;
+    color: #333333; /* Texto oscuro */
+    background-color: #f5f5f5; /* Gris muy claro para los campos */
+    box-shadow: inset 2px 5px 10px rgba(0, 0, 0, 0.1); /* Sombra interna sutil */
+    border: 1px solid #7ec219; /* Borde verde */
+    margin-bottom: 0.5em;
+  }
+  
+  .input-icon {
+    height: 1.2em;
+    width: 1.2em;
+    fill: #7ec219; /* Iconos en verde */
+  }
+  
+  .input-field {
+    background: none;
+    border: none;
+    outline: none;
+    width: 100%;
+    color: #333333; /* Texto oscuro */
+    font-size: 0.9em;
+    font-weight: bold;
+  }
+  
+  .input-field::placeholder {
+    color: #999999; /* Gris medio para placeholder */
+    opacity: 0.7;
+    font-weight: bold;
+  }
+  
+  .form .btn {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 1.8em;
+    margin-bottom: 2em;
+  }
+  
+  .button1 {
+    width: 45%;
+    padding: 0.5em;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    transition: .4s ease-in-out;
+    background-color: #7ec219; /* Verde para botón añadir */
+    color: white; /* Texto blanco para contraste */
+    font-size: 0.9em;
+    font-weight: bold;
+  }
+  
+  .button1:hover {
+    background-color: #3be019; /* Verde más brillante al pasar el mouse */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(126, 194, 25, 0.5); /* Sombra verde */
+  }
+  
+  .button1:disabled {
+    background-color: #c5e094;
+    transform: none;
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  .button3 {
+    width: 45%;
+    padding: 0.5em;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    transition: .4s ease-in-out;
+    background-color: #e0cb19; /* Amarillo dorado para botón borrar */
+    color: white; /* Texto blanco para contraste */
+    font-size: 0.9em;
+    font-weight: bold;
+  }
+  
+  .button3:hover {
+    background-color: #f3db2e; /* Amarillo más brillante al pasar el mouse */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(224, 203, 25, 0.5); /* Sombra amarilla */
+  }
+  
+  .error-message {
+    color: #e74c3c; /* Rojo para mensajes de error */
+    font-size: 0.8em;
+    margin-top: -0.4em;
+    margin-bottom: 0.8em;
+    padding-left: 1em;
+    font-weight: bold;
+  }
 </style>
 
 <form [formGroup]="puntosForm" (ngSubmit)="onSubmit()" class="form">
-    <p id="heading">REGISTRO DE PUNTOS</p>
-    
-    <div class="field">
-      <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-        <path d="M13.106 7.222c0-2.967-2.249-5.032-5.482-5.032-3.35 0-5.646 2.318-5.646 5.702 0 3.493 2.235 5.708 5.762 5.708.862 0 1.689-.123 2.304-.335v-.862c-.43.199-1.354.328-2.29.328-2.926 0-4.813-1.88-4.813-4.798 0-2.844 1.921-4.881 4.594-4.881 2.735 0 4.608 1.688 4.608 4.156 0 1.682-.554 2.769-1.416 2.769-.492 0-.772-.28-.772-.76V5.206H8.923v.834h-.11c-.266-.595-.881-.964-1.6-.964-1.4 0-2.378 1.162-2.378 2.823 0 1.737.957 2.906 2.379 2.906.8 0 1.415-.39 1.709-1.087h.11c.081.67.703 1.148 1.503 1.148 1.572 0 2.57-1.415 2.57-3.643zm-7.177.704c0-1.197.54-1.907 1.456-1.907.93 0 1.524.738 1.524 1.907S8.308 9.84 7.371 9.84c-.895 0-1.442-.725-1.442-1.914z"></path>
-      </svg>
-      <input autocomplete="off" placeholder="Username" class="input-field" type="text" formControlName="username">
-    </div>
-    
-    <div *ngFor="let mensaje of obtenerMensajesError('username')" class="error-message">
-      {{ mensaje }}
-    </div>
-    
-    <div class="field">
-      <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-        <path d="M5.5 2a.5.5 0 0 0-.5.5v11a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-4h1.5a3.5 3.5 0 1 0 0-7h-4zm2 1.5v4H9a2 2 0 1 0 0-4H7.5z"/>
-      </svg>
-      <input placeholder="Cantidad de Puntos" class="input-field" type="number" min="1" formControlName="puntos">
-    </div>
-    
-    <div *ngFor="let mensaje of obtenerMensajesError('puntos')" class="error-message">
-      {{ mensaje }}
-    </div>
-    
-    <div class="btn">
-      <button class="button1" type="submit" [disabled]="puntosForm.invalid">AÑADIR</button>
-      <button class="button3" type="button" (click)="clearInputs()">BORRAR</button>
-    </div>
+  <p id="heading">REGISTRO DE PUNTOS</p>
+  
+  <div class="field">
+    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M13.106 7.222c0-2.967-2.249-5.032-5.482-5.032-3.35 0-5.646 2.318-5.646 5.702 0 3.493 2.235 5.708 5.762 5.708.862 0 1.689-.123 2.304-.335v-.862c-.43.199-1.354.328-2.29.328-2.926 0-4.813-1.88-4.813-4.798 0-2.844 1.921-4.881 4.594-4.881 2.735 0 4.608 1.688 4.608 4.156 0 1.682-.554 2.769-1.416 2.769-.492 0-.772-.28-.772-.76V5.206H8.923v.834h-.11c-.266-.595-.881-.964-1.6-.964-1.4 0-2.378 1.162-2.378 2.823 0 1.737.957 2.906 2.379 2.906.8 0 1.415-.39 1.709-1.087h.11c.081.67.703 1.148 1.503 1.148 1.572 0 2.57-1.415 2.57-3.643zm-7.177.704c0-1.197.54-1.907 1.456-1.907.93 0 1.524.738 1.524 1.907S8.308 9.84 7.371 9.84c-.895 0-1.442-.725-1.442-1.914z"></path>
+    </svg>
+    <input autocomplete="off" placeholder="Username" class="input-field" type="text" formControlName="username">
+  </div>
+  
+  <div *ngFor="let mensaje of obtenerMensajesError('username')" class="error-message">
+    {{ mensaje }}
+  </div>
+  
+  <div class="field">
+    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M5.5 2a.5.5 0 0 0-.5.5v11a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-4h1.5a3.5 3.5 0 1 0 0-7h-4zm2 1.5v4H9a2 2 0 1 0 0-4H7.5z"/>
+    </svg>
+    <input placeholder="Cantidad de Puntos" class="input-field" type="number" min="1" formControlName="puntos">
+  </div>
+  
+  <div *ngFor="let mensaje of obtenerMensajesError('puntos')" class="error-message">
+    {{ mensaje }}
+  </div>
+  
+  <div class="btn">
+    <button class="button1" type="submit" [disabled]="puntosForm.invalid">AÑADIR</button>
+    <button class="button3" type="button" (click)="clearInputs()">BORRAR</button>
+  </div>
 </form>
