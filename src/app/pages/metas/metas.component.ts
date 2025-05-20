@@ -18,7 +18,7 @@ interface Meta {
 })
 export class MetasComponent {
   saldoPersona=100;
-  userRole: string= "admin"; // o null si no está logueado user, empresa, admin
+  userRole: string = localStorage.getItem('rol') || 'user-realm-rol'; // Obtener el rol del localStorage o asignar 'user' por defecto	
   mostrarFormulario = false;
   mostrarFormularioDonacion = false;
   mostrarFormularioSaldo = false;

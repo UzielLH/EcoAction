@@ -6,13 +6,19 @@
         <a routerLink="/home">
           <img class="w-20 mt-2 hover: transform transition-transform duration-300 hover:scale-110" src="assets/LOGO.png" alt="Logo">
         </a>
-      </div>   
+      </div>
+      
+      <!-- Mensaje de bienvenida -->
+      <div *ngIf="isLoggedIn" class="text-white text-2xl kanit-bold">
+        Bienvenido, {{ username }}
+      </div>
+
       <!-- Sesión -->
       <div>
         <a routerLink="/login" class="text-white text-lg kanit-bold hover:underline" *ngIf="!isLoggedIn">
           Iniciar Sesión
         </a>
-        <a class="text-white text-lg font-bold hover:underline" *ngIf="isLoggedIn">
+        <a class="text-white text-lg font-bold hover:underline cursor-pointer" *ngIf="isLoggedIn" (click)="logout()">
           Cerrar Sesión
         </a>
       </div>
