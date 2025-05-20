@@ -1,13 +1,30 @@
 <div class="flex h-screen">
   <!-- Sección Izquierda -->
-  <div class="w-full md:w-1/2 flex flex-col justify-center items-center bg-white p-10 relative">
+  <div class="w-full md:w-1/2 flex flex-col justify-start items-center bg-white p-10 relative overflow-y-auto h-screen">
+
     <button routerLink="/home" class="absolute top-5 left-5 text-gray-600 hover:text-black text-xl">
       <i class="fas fa-arrow-left"></i>
     </button>
     
     <h1 class="text-4xl kanit-bold text-black mb-4">Regístrate</h1>
+
+    <div class="flex items-center space-x-4">
+      <h3 class="kanit-semibold">Usuario</h3>
+      <label class="switch relative">
+        <input class="peer hidden" type="checkbox" (change)="toggleForm()" />
+        <span
+          class="slider absolute h-5 w-5 translate-x-0.5 translate-y-0.5 rounded-md border-2 border-black bg-lime-500 shadow-[inset_2px_3px_2px] duration-700 peer-checked:translate-x-[1.6rem] peer-checked:border-gray-200 peer-checked:bg-white peer-checked:shadow-[inset_-2px_-2px_3px]"
+        ></span>
+        <div
+          class="h-6 w-12 rounded-lg border-2 border-black shadow-[2px_3px_2px] duration-700 peer-checked:bg-lime-500"
+        ></div>
+      </label>
+      <h3 class="kanit-semibold">Empresa</h3>
+    </div>
+    
     <div class="w-full max-w-md">
-      <form [formGroup]="registerForm" (ngSubmit)="register()">
+      <!-- Mostrar formulario según el valor de esUsuario -->
+      <form *ngIf="esUsuario" [formGroup]="registerUsuario" (ngSubmit)="register()">
         <label class="block text-gray-700 kanit-semibold mb-1">Nombre</label>
         <input type="text" formControlName="nombre"  placeholder="Ingresa tu nombre" class="w-full p-3 border kanit-extralight rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-400">
         <p class="text-sm text-red-500 p-1 kanit-extralight">
@@ -30,10 +47,77 @@
         </p>
         <button type="submit" class="w-full bg-lime-500 text-white p-3 rounded-lg kanit-semibold hover:bg-lime-600 transition">Registrarse</button>
       </form>
+    
+
+
+    <form *ngIf="!esUsuario" [formGroup]="registerEmpresa" (ngSubmit)="registroEmpresa()">        <label class="block text-gray-700 kanit-semibold mb-1">Nombre de la empresa</label>
+        <input type="text" formControlName="nombreEmpresa"  placeholder="Ingresa el nombre de la empresa" class="w-full p-3 border kanit-extralight rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-400">
+        <p class="text-sm text-red-500 p-1 kanit-extralight">
+          {{obtenerMensajesErrorEmpresa('nombreEmpresa')}}
+        </p>
+        <label class="block text-gray-700 kanit-semibold mb-1">Usuario</label>
+        <input type="text"  formControlName="usuarioEmpresa" placeholder="Ingresa el nombre de usuario" class="w-full p-3 border kanit-extralight rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-400">
+        <p class="text-sm text-red-500 p-1 kanit-extralight">
+          {{obtenerMensajesErrorEmpresa('usuarioEmpresa')}}
+        </p>
+        <label class="block text-gray-700 kanit-semibold mb-1">Correo Electrónico</label>
+        <input type="email"  formControlName="emailEmpresa" placeholder="Ingresa el correo de la empresa" class="w-full p-3 border rounded-lg mb-4 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
+        <p class="text-sm text-red-500 p-1 kanit-extralight">
+          {{obtenerMensajesErrorEmpresa('emailEmpresa')}}
+        </p>
+        <label class="block text-gray-700 kanit-semibold mb-1">Dirección:</label>
+        <input type="email"  formControlName="direccion" placeholder="Ingresa la dirección de la empresa" class="w-full p-3 border rounded-lg mb-4 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
+        <p class="text-sm text-red-500 p-1 kanit-extralight">
+          {{obtenerMensajesErrorEmpresa('direccion')}}
+        </p>
+        <label class="block text-gray-700 kanit-semibold mb-1">Teléfono:</label>
+        <input 
+          type="text" 
+          formControlName="telefono" 
+          placeholder="Ingresa el télefono de la empresa" 
+          class="w-full p-3 border rounded-lg mb-4 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400"
+          inputmode="tel" 
+          (keypress)="validarEntradaTelefono($event)">
+        <p class="text-sm text-red-500 p-1 kanit-extralight">
+          {{obtenerMensajesErrorEmpresa('telefono')}}
+        </p>
+        <label class="block text-gray-700 kanit-semibold mb-1">Horario:</label>
+        <input type="text"  formControlName="horario" placeholder="Ingresa el horario laboral" class="w-full p-3 border rounded-lg mb-4 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
+        <p class="text-sm text-red-500 p-1 kanit-extralight">
+          {{obtenerMensajesErrorEmpresa('horario')}}
+        </p>
+        <label class="block text-gray-700 kanit-semibold mb-1">Fotografía del local:</label>
+        <input 
+          type="file" 
+          formControlName="imagen" 
+          accept="image/*" 
+          class="w-full p-3 border rounded-lg mb-4 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
+        <p class="text-sm text-red-500 p-1 kanit-extralight">
+          {{obtenerMensajesErrorEmpresa('imagen')}}
+        </p>
+        <label class="block text-gray-700 kanit-semibold mb-1">Latitud:</label>
+        <input type="number"  formControlName="latitud" placeholder="Ingresa latitud de la ubicación" class="w-full p-3 border rounded-lg mb-4 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
+        <p class="text-sm text-red-500 p-1 kanit-extralight">
+          {{obtenerMensajesErrorEmpresa('latitud')}}
+        </p>
+        <label class="block text-gray-700 kanit-semibold mb-1">Longitud:</label>
+        <input type="number"  formControlName="longitud" placeholder="Ingresa longitud de la ubicación" class="w-full p-3 border rounded-lg mb-4 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
+        <p class="text-sm text-red-500 p-1 kanit-extralight">
+          {{obtenerMensajesErrorEmpresa('longitud')}}
+        </p>
+        <label class="block text-gray-700 kanit-semibold mb-1">Contraseña</label>
+        <input type="password" formControlName="passwordEmpresa"  placeholder="Contraseña" class="w-full p-3 border rounded-lg mb-6 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
+        <p class="text-sm text-red-500 p-1 kanit-extralight">
+          {{obtenerMensajesErrorEmpresa('passwordEmpresa')}}
+        </p>
+        <button type="submit" class="w-full bg-lime-500 text-white p-3 rounded-lg kanit-semibold hover:bg-lime-600 transition">Registrarse</button>
+      </form>
       <p class="mt-4 kanit-semibold text-gray-600">¿Tienes una cuenta? <a href="/login" class="text-blue-600 kanit-semibold">Iniciar sesión</a></p>
     </div>
   </div>
   
+
+
   <!-- Sección Derecha con Imagen -->
   <div class="hidden md:block md:w-1/2 bg-contain bg-no-repeat bg-center" style="background-image: url('/assets/LOGO.png'); background-color: #f9fafb;"></div>
 </div>

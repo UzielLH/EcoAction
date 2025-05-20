@@ -7,21 +7,21 @@
   <!-- Contenedor de botones y saldo -->
   <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-6">
     <!-- Mostrar botón "Crear meta" solo si el rol es admin -->
-    <button *ngIf="userRole === 'admin'" 
+    <button *ngIf="userRole === 'admin-realm-rol'" 
       (click)="mostrarFormulario = true"
       class="px-4 py-2 bg-green-500 text-white kanit-bold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
       Crear meta
     </button>
 
     <!-- Mostrar botón "Agregar Saldo" solo si el rol es user -->
-    <button *ngIf="userRole === 'user'" 
+    <button *ngIf="userRole === 'user-realm-rol'" 
       (click)="mostrarFormularioSaldo = true"
       class="px-4 py-2 bg-green-500 text-white kanit-bold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
       Agregar Saldo
     </button>
 
     <!-- Mostrar saldo solo si el rol es user, pero mantener el espacio reservado -->
-    <p *ngIf="userRole === 'user'; else emptySaldo" 
+    <p *ngIf="userRole === 'user-realm-rol'; else emptySaldo" 
       class="text-xl kanit-semibold text-gray-800">
       Saldo: {{ saldoPersona | currency }}
     </p>
@@ -139,8 +139,46 @@
     <div class="bg-white p-6 rounded-lg shadow-lg w-96">
       <h1 class="text-3xl kanit-bold text-gray-900 text-center">Ingresa saldo a depositar</h1>
       <form [formGroup]="SaldoForm" (ngSubmit)="registerSaldo()">
+        
+        <div class="mb-4">
+          <label for="nombre" class="block text-gray-700 kanit-bold mb-2 text-base">Nombre del titular:</label>
+          <input formControlName="nombreTarjeta" type="text" id="nombre" class="w-full p-2 border rounded" placeholder="Juan López"/>
+          <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorSaldo('nombreTarjeta') }}</p>
+        </div>
 
-    
+        <div class="mb-4">
+          <label for="cantidad" class="block text-gray-700 kanit-bold mb-2 text-base">Tarjeta:</label>
+          <input 
+            formControlName="notarjeta" 
+            type="text" 
+            id="cantidad" 
+            class="w-full p-2 border rounded" 
+            placeholder="xxxx xxxx xxxx xxxx" 
+            maxlength="16" 
+            (input)="validateNumericInput($event)" />
+          <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorSaldo('notarjeta') }}</p>
+        </div>
+
+        <div class="mb-4">
+          <label for="vencimiento" class="block text-gray-700 kanit-bold mb-2 text-base">Vencimiento:</label>
+          <input formControlName="vencimiento" type="text" id="vencimiento" class="w-full p-2 border rounded" 
+                 (input)="formatVencimiento($event)" maxlength="5" placeholder="MM/YY" />
+          <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorSaldo('vencimiento') }}</p>
+        </div>
+
+        <div class="mb-4">
+          <label for="nombre" class="block text-gray-700 kanit-bold mb-2 text-base">CVC:</label>
+          <input 
+            formControlName="cvc" 
+            type="text" 
+            id="number" 
+            class="w-full p-2 border rounded" 
+            maxlength="3" 
+            (input)="validateNumericInput($event)" 
+            placeholder="123" />
+          <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorSaldo('cvc') }}</p>
+        </div>
+
         <div class="mb-4">
           <label for="cantidad" class="block text-gray-700 kanit-bold mb-2 text-base">Saldo a agregar:</label>
           <div class="relative">
@@ -151,11 +189,7 @@
           </div>
           <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorSaldo('saldo') }}</p>
         </div>
-        <div class="mb-4">
-          <label for="cantidad" class="block text-gray-700 kanit-bold mb-2 text-base">Tarjeta:</label>
-          <input formControlName="tarjeta" type="text" id="cantidad" class="w-full p-2 border rounded" placeholder="xxxx xxxx xxxx xxxx" maxlength="16"/>
-          <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorSaldo('tarjeta') }}</p>
-        </div>
+        
         <div class="flex justify-between">
           <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded kanit-extralight text-lg">Depositar</button>
           <button type="button" (click)="mostrarFormularioSaldo = false" class="bg-red-500 text-white px-4 py-2 rounded kanit-extralight text-lg">Cancelar</button>
