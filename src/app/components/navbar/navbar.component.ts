@@ -30,7 +30,7 @@ export class NavbarComponent {
    // Método para verificar si el rol tiene acceso a una sección
    showLink(role: string, link: string): boolean {
     const roleAccess: { [key: string]: string[] } = {
-      'admin-realm-rol': ['home','mapa', 'metas', 'informacion', 'tips', 'colocacionPuntos', 'creacionMetas'],
+      'admin-realm-rol': ['home','mapa', 'metas', 'informacion', 'tips', 'colocacionPuntos', 'creacionMetas', 'crearEmpresa', 'crearAdmin'],
       'empresa-realm-rol': ['home','mapa', 'metas', 'informacion', 'tips', 'colocacionPuntos'],
       'user-realm-rol': ['home','mapa', 'metas', 'informacion', 'tips']
     };

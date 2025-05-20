@@ -59,9 +59,17 @@
            class="text-white text-lg px-3 py-2 rounded-md hover:underline transform transition-transform duration-300 hover:scale-110">
           Colocación de Puntos
         </a>
-        <a *ngIf="showLink(userRole, 'creacionMetas')" routerLink="/creacionMetas" routerLinkActive="border" 
+        <!-- <a *ngIf="showLink(userRole, 'creacionMetas')" routerLink="/creacionMetas" routerLinkActive="border" 
            class="text-white text-lg px-3 py-2 rounded-md hover:underline transform transition-transform duration-300 hover:scale-110">
           Creación de Metas
+        </a> -->
+        <a *ngIf="showLink(userRole, 'crearEmpresa')" routerLink="/crearEmpresa" routerLinkActive="border" 
+           class="text-white text-lg px-3 py-2 rounded-md hover:underline transform transition-transform duration-300 hover:scale-110">
+          Creación de Empresas
+        </a>
+        <a *ngIf="showLink(userRole, 'crearAdmin')" routerLink="/crearAdmin" routerLinkActive="border" 
+           class="text-white text-lg px-3 py-2 rounded-md hover:underline transform transition-transform duration-300 hover:scale-110">
+          Creación de Administradores
         </a>
       </div>
     </div>
