@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@import 'mapbox-gl/dist/mapbox-gl.css';
 
 .kanit-thin {
     font-family: "Kanit", sans-serif;
