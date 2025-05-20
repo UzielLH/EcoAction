@@ -71,6 +71,10 @@
            class="text-white text-lg px-3 py-2 rounded-md hover:underline transform transition-transform duration-300 hover:scale-110">
           Creación de Administradores
         </a>
+        <a *ngIf="showLink(userRole, 'perfil')" routerLink="/perfil" routerLinkActive="border" 
+           class="text-white text-lg px-3 py-2 rounded-md hover:underline transform transition-transform duration-300 hover:scale-110">
+          Perfil
+        </a>
       </div>
     </div>
     <!-- Menú en pantallas pequeñas -->

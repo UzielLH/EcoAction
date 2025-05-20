@@ -18,25 +18,20 @@ import { RouterLink } from '@angular/router';
 export class CrearEmpresaComponent { 
   private fb=inject(FormBuilder);
   registerEmpresa!: FormGroup;
-  esUsuario: boolean = true; 
 
   constructor(){
     this.registerEmpresa=this.fb.group({
-      nombreEmpresa: ['',  [Validators.required, Validators.minLength(5)]],
-      usuarioEmpresa:['', [Validators.required, Validators.minLength(5), forbiddenName()]],
-      emailEmpresa: ['',[Validators.required, Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')]],
+      nombre: ['',  [Validators.required, Validators.minLength(5)]],
+      username:['', [Validators.required, Validators.minLength(5), forbiddenName()]],
+      email: ['',[Validators.required, Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')]],
       direccion:['',[Validators.required, Validators.minLength(15)]],
+      fechaNacimiento: ['', [Validators.required]],
       telefono:['',[Validators.required, Validators.pattern('^[0-9+]{10,15}$')]],
       horario:['', [Validators.required, Validators.minLength(5)]],
-      imagen: ['', [Validators.required]],
       latitud:['', [Validators.required, Validators.pattern('^-?([1-8]?[0-9]|90)\\.\\d+$')]],
       longitud:['', [Validators.required, Validators.pattern('^-?((1[0-7][0-9])|([1-9]?[0-9]))\\.\\d+$')]],
-      passwordEmpresa: ['', [Validators.required, Validators.minLength(8)]]
+      password: ['', [Validators.required, Validators.minLength(8)]]
     });
-  }
-
-  toggleForm() {
-    this.esUsuario = !this.esUsuario;
   }
 
   validarEntradaTelefono(event: KeyboardEvent) {

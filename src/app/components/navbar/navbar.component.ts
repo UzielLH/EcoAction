@@ -31,8 +31,8 @@ export class NavbarComponent {
    showLink(role: string, link: string): boolean {
     const roleAccess: { [key: string]: string[] } = {
       'admin-realm-rol': ['home','mapa', 'metas', 'informacion', 'tips', 'colocacionPuntos', 'creacionMetas', 'crearEmpresa', 'crearAdmin'],
-      'empresa-realm-rol': ['home','mapa', 'metas', 'informacion', 'tips', 'colocacionPuntos'],
-      'user-realm-rol': ['home','mapa', 'metas', 'informacion', 'tips']
+      'empresa-realm-rol': ['home','mapa', 'metas', 'informacion', 'tips', 'colocacionPuntos', 'perfil'],
+      'user-realm-rol': ['home','mapa', 'metas', 'informacion', 'tips', 'perfil']
     };
      // Si el rol no existe o no está definido, mostrar los enlaces de 'user'
     if (!roleAccess[role]) {
