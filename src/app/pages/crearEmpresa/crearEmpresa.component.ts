@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { forbiddenName } from '../../validators/forbiddenName';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { CreacionEmpresaService } from '../../services/CreacionEmpresa.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-crear-empresa',
@@ -17,6 +19,7 @@ import { RouterLink } from '@angular/router';
 })
 export class CrearEmpresaComponent { 
   private fb=inject(FormBuilder);
+  private creacionEmpresaService = inject(CreacionEmpresaService);
   registerEmpresa!: FormGroup;
 
   constructor(){
@@ -43,13 +46,37 @@ export class CrearEmpresaComponent {
   }
   
   
-  registroEmpresa(){
-    if(this.registerEmpresa.invalid){
-      this.registerEmpresa.markAllAsTouched();
-      return;
-    }
-    console.log('Registrando...', this.registerEmpresa.value);
+registroEmpresa() {
+  if (this.registerEmpresa.invalid) {
+    this.registerEmpresa.markAllAsTouched();
+    return;
   }
+
+  const empresaData = this.registerEmpresa.value;
+  this.creacionEmpresaService.crearEmpresa(empresaData)
+    .then(response => {
+      Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: 'La empresa ha sido creada exitosamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    })
+    .catch(error => {
+      // Verifica si el backend envió un mensaje de error
+      const errorMessage = error?.message || 'Ocurrió un error al crear la empresa. Por favor, inténtalo de nuevo.';
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMessage, // Muestra el mensaje del backend si está disponible
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Aceptar'
+      });
+      console.error('Error al crear la empresa:', error);
+    });
+}
+
 
 
 

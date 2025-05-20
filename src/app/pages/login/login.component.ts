@@ -4,6 +4,7 @@ import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { firstValueFrom } from 'rxjs';
 import Swal from 'sweetalert2';
+import { PasswordEmpService } from '../../services/PasswordEmp.service';
 
 @Component({
   selector: 'app-login',
@@ -15,6 +16,8 @@ export class LoginComponent {
   private fb=inject(FormBuilder);
   loginForm!: FormGroup;
   private authService = inject(AuthService); // Inyectar el servicio
+  private passwordService = inject(PasswordEmpService); // inyecta el servicio
+
   private router = inject(Router);
   constructor() {
     this.loginForm=this.fb.group({
@@ -24,77 +27,154 @@ export class LoginComponent {
   }
 
 
-  async register() {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      return;
-    }
+//   async register() {
+//     if (this.loginForm.invalid) {
+//       this.loginForm.markAllAsTouched();
+//       return;
+//     }
 
-    try {
-      const { username, password } = this.loginForm.value;
-      const response: any = await firstValueFrom(
-        this.authService.login({ username, password })
-      );
-      console.log('Response:', response);
+//     try {
+//       const { username, password } = this.loginForm.value;
+//       const response: any = await firstValueFrom(
+//         this.authService.login({ username, password })
+//       );
+//       console.log('Response:', response);
       
-      if (response.access_token) {
-        console.log('Login exitoso:', response);
-        localStorage.setItem('access_token', response.access_token); // Guardar el token en localStorage
-        localStorage.setItem('refresh_token', response.refresh_token); // Guardar el refresh token en localStorage
-        localStorage.setItem('rol', response.roles[0]); // Guardar el rol en localStorage
-        localStorage.setItem('username', username); // Guardar el nombre de usuario en localStorage
-        localStorage.setItem('userUuid', response.uuid); // Guardar el userId en localStorage
+//       if (response.access_token) {
+//         console.log('Login exitoso:', response);
+//         localStorage.setItem('access_token', response.access_token); // Guardar el token en localStorage
+//         localStorage.setItem('refresh_token', response.refresh_token); // Guardar el refresh token en localStorage
+//         localStorage.setItem('rol', response.roles[0]); // Guardar el rol en localStorage
+//         localStorage.setItem('username', username); // Guardar el nombre de usuario en localStorage
+//         localStorage.setItem('userUuid', response.uuid); // Guardar el userId en localStorage
 
-        Swal.fire({
-          icon: 'success',
-          title: '¡Login exitoso!',
-          text: 'Bienvenido, ' + username,
-          timer: 2000,
-          showConfirmButton: false
-        });
+//         Swal.fire({
+//           icon: 'success',
+//           title: '¡Login exitoso!',
+//           text: 'Bienvenido, ' + username,
+//           timer: 2000,
+//           showConfirmButton: false
+//         });
 
-        this.router.navigate(['/home']); // Redirigir al dashboard o página principal
-      } else {
-        console.error('Error en el login:', response.message);
-        // SweetAlert para credenciales incorrectas
-          Swal.fire({
-          icon: 'error',
-          title: 'Error en el login',
-          text: 'Credenciales incorrectas. Inténtalo de nuevo.',
-          confirmButtonText: 'Aceptar'
-        });      }
-    } catch (error) {
-      console.error('Error en el login:', error);
+//         this.router.navigate(['/home']); // Redirigir al dashboard o página principal
+//       } else {
+//         console.error('Error en el login:', response.message);
+//         // SweetAlert para credenciales incorrectas
+//           Swal.fire({
+//           icon: 'error',
+//           title: 'Error en el login',
+//           text: 'Credenciales incorrectas. Inténtalo de nuevo.',
+//           confirmButtonText: 'Aceptar'
+//         });      }
+//     } catch (error) {
+//       console.error('Error en el login:', error);
+//       Swal.fire({
+//         icon: 'error',
+//         title: 'Error en el servidor',
+//         text: 'Ocurrió un error al iniciar sesión. Inténtalo más tarde.',
+//         confirmButtonText: 'Aceptar'
+//       });
+//     }
+// }
+
+async register() {
+  if (this.loginForm.invalid) {
+    this.loginForm.markAllAsTouched();
+    return;
+  }
+
+  try {
+    const { username, password } = this.loginForm.value;
+    const response: any = await firstValueFrom(
+      this.authService.login({ username, password })
+    );
+    
+    if (response.access_token) {
+      // Guardar datos en localStorage
+      localStorage.setItem('access_token', response.access_token);
+      localStorage.setItem('refresh_token', response.refresh_token);
+      localStorage.setItem('rol', response.roles[0]);
+      localStorage.setItem('username', username);
+      localStorage.setItem('userUuid', response.uuid);
+
+      // Verificar rol
+      const rol = localStorage.getItem('rol');
+      if (rol === 'empresa-realm-rol') {
+        const datosEmpresa: any = await firstValueFrom(this.passwordService.DatosEmpresa());
+
+        // Suponiendo que el usuario logueado es único en la respuesta
+        const usuarioActual = datosEmpresa.find((emp: any) => emp.username === username);
+
+        if (usuarioActual && usuarioActual.temporalPassword) {
+          const { value: contrasena } = await Swal.fire({
+            title: 'Contraseña temporal detectada',
+            input: 'password',
+            inputLabel: 'Ingresa tu nueva contraseña',
+            inputPlaceholder: 'Nueva contraseña',
+            inputAttributes: {
+              minlength: '6',
+              required: 'true'
+            },
+            confirmButtonText: 'Actualizar',
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            preConfirm: (value) => {
+              if (!value || value.length < 6) {
+                Swal.showValidationMessage('La contraseña debe tener al menos 6 caracteres');
+              }
+              return value;
+            }
+          });
+
+          if (contrasena) {
+            // Llamar a la API para cambiar la contraseña
+            await firstValueFrom(this.passwordService.cambiarContraseña(response.uuid, contrasena));
+
+            Swal.fire({
+              icon: 'success',
+              title: 'Contraseña actualizada',
+              text: 'Tu contraseña ha sido actualizada correctamente.',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          } else {
+            // Si cancela, puedes redirigirlo fuera del sistema si lo deseas
+            this.router.navigate(['/']);
+            return;
+          }
+        }
+      }
+
+      // Mostrar mensaje de éxito y redirigir
+      Swal.fire({
+        icon: 'success',
+        title: '¡Login exitoso!',
+        text: 'Bienvenido, ' + username,
+        timer: 2000,
+        showConfirmButton: false
+      });
+
+      this.router.navigate(['/home']);
+
+    } else {
       Swal.fire({
         icon: 'error',
-        title: 'Error en el servidor',
-        text: 'Ocurrió un error al iniciar sesión. Inténtalo más tarde.',
+        title: 'Error en el login',
+        text: 'Credenciales incorrectas. Inténtalo de nuevo.',
         confirmButtonText: 'Aceptar'
       });
     }
+
+  } catch (error) {
+    console.error('Error en el login:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error en el servidor',
+      text: 'Ocurrió un error al iniciar sesión. Inténtalo más tarde.',
+      confirmButtonText: 'Aceptar'
+    });
+  }
 }
-  // async register() {
-  //   if (this.loginForm.invalid) {
-  //     this.loginForm.markAllAsTouched();
-  //     return;
-  //   }
-
-  //   try {
-  //     const { username, password } = this.loginForm.value;
-  //     const response:any = await this.authService.login(username, password);
-
-  //     if (response.success) {
-  //       console.log('Login exitoso:', response);
-  //       this.router.navigate(['/home']); // Redirigir al dashboard o página principal
-  //     } else {
-  //       console.error('Error en el login:', response.message);
-  //       alert('Credenciales incorrectas. Inténtalo de nuevo.');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error en el login:', error);
-  //     alert('Ocurrió un error al iniciar sesión. Inténtalo más tarde.');
-  //   }
-  // }
 
   obtenerMensajesError(controlName: string) {
     const control = this.loginForm.get(controlName);
