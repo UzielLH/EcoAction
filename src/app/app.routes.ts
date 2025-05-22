@@ -13,6 +13,7 @@ import { AddFondosComponent } from './pages/add-fondos/add-fondos.component';
 import { CrearEmpresaComponent } from './pages/crearEmpresa/crearEmpresa.component';
 import { CrearAdminComponent } from './pages/crearAdmin/crearAdmin.component';
 import { PerfilComponent } from './pages/perfil/perfil.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
     {
@@ -41,11 +42,13 @@ export const routes: Routes = [
     },
     {
         path:'colocacionPuntos',
-        component: ColocacionPuntosComponent
+        component: ColocacionPuntosComponent,
+        canActivate:[authGuard]
     },
     {
         path: 'creacionMetas',
-        component: CreacionMetasComponent
+        component: CreacionMetasComponent,
+        canActivate:[authGuard]
     },{
         path:'metas',
         component: MetasComponent
@@ -56,15 +59,18 @@ export const routes: Routes = [
     },
     {
         path:'crearEmpresa',
-        component: CrearEmpresaComponent
+        component: CrearEmpresaComponent,
+        canActivate:[authGuard]
     },
     {
         path:'crearAdmin',
-        component: CrearAdminComponent
+        component: CrearAdminComponent,
+        canActivate:[authGuard]
     },
     {
         path:'perfil',
-        component: PerfilComponent
+        component: PerfilComponent,
+        canActivate:[authGuard]
     },
     {
         path:'**',

@@ -19,6 +19,7 @@
     "@angular/platform-browser-dynamic": "^19.1.0",
     "@angular/router": "^19.1.0",
     "@tailwindcss/postcss": "^4.0.13",
+    "browser-image-compression": "^2.0.2",
     "eco-action": "file:",
     "mapbox-gl": "^3.11.0",
     "postcss": "^8.5.3",

@@ -1,8 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { forbiddenName } from '../../validators/forbiddenName';
 import { CommonModule } from '@angular/common';
+import { CreacionUserService } from '../../services/CreacionUser.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-sign-up',
@@ -12,12 +14,14 @@ import { CommonModule } from '@angular/common';
 })
 export class SignUpComponent {
   private fb=inject(FormBuilder);
-  registerUsuario!: FormGroup;
+  private creacionUserService=inject(CreacionUserService);
+  private router = inject(Router);
+  registerUsuario!: FormGroup;  
   esUsuario: boolean = true; 
 
   constructor(){
     this.registerUsuario=this.fb.group({
-      nombre: ['',  [Validators.required, Validators.minLength(5)]],
+      nombre: ['',  [Validators.required, Validators.minLength(2)]],
       apellidos:['', [Validators.required, Validators.minLength(5)]],
       username: ['', [Validators.required, Validators.minLength(5), forbiddenName()]],
       fechaNacimiento: ['', [Validators.required]],
@@ -39,12 +43,36 @@ export class SignUpComponent {
     }
   }
   
-  register(){
-    if(this.registerUsuario.invalid){
+  register() {
+    if (this.registerUsuario.invalid) {
       this.registerUsuario.markAllAsTouched();
       return;
     }
-    console.log('Registrando...', this.registerUsuario.value);
+
+    const usuarioData = this.registerUsuario.value;
+    this.creacionUserService.crearUsuario(usuarioData)
+      .then(response => {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          text: 'El usuario ha sido creado exitosamente.',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Aceptar'
+        }).then(() => {
+          this.router.navigate(['/login']);
+        });
+      })
+      .catch(error => {
+        const errorMessage = error?.message || 'Ocurrió un error al crear el usuario. Por favor, inténtalo de nuevo.';
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage,
+          confirmButtonColor: '#d33',
+          confirmButtonText: 'Aceptar'
+        });
+        console.error('Error al crear el usuario:', error);
+      });
   }
 
 

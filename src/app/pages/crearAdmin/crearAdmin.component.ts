@@ -3,6 +3,8 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { forbiddenName } from '../../validators/forbiddenName';
+import { CreacionAdminService } from '../../services/CreacionAdmin.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-crear-admin',
@@ -17,6 +19,7 @@ import { forbiddenName } from '../../validators/forbiddenName';
 })
 export class CrearAdminComponent {
   private fb=inject(FormBuilder);
+  private creacionAdminService = inject(CreacionAdminService);
   registerAdmin!: FormGroup;
   esUsuario: boolean = true; 
 
@@ -44,14 +47,35 @@ export class CrearAdminComponent {
     }
   }
   
-  register(){
-    if(this.registerAdmin.invalid){
+  register() {
+    if (this.registerAdmin.invalid) {
       this.registerAdmin.markAllAsTouched();
       return;
     }
-    console.log('Registrando...', this.registerAdmin.value);
-  }
 
+    const adminData = this.registerAdmin.value;
+    this.creacionAdminService.crearAdmin(adminData)
+      .then(response => {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          text: 'El administrador ha sido creado exitosamente.',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Aceptar'
+        });
+      })
+      .catch(error => {
+        const errorMessage = error?.message || 'Ocurrió un error al crear el administrador. Por favor, inténtalo de nuevo.';
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage,
+          confirmButtonColor: '#d33',
+          confirmButtonText: 'Aceptar'
+        });
+        console.error('Error al crear el administrador:', error);
+      });
+  }
 
 
   obtenerMensajesError(controlName: string) {

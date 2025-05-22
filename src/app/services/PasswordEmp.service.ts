@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
-const APIURL='http://175.1.51.61:8082/';
-const APIURL2='http://175.1.51.61:8081/';
+const APIURL='http://175.1.42.56:8082/';
+const APIURL2='http://175.1.42.56:8081/';
 @Injectable({
   providedIn: 'root'
 })

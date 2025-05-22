@@ -39,25 +39,25 @@
       <form [formGroup]="metaForm" (ngSubmit)="register()">
         <div class="mb-4">
           <label for="nombre" class="block text-gray-700 kanit-bold mb-2">Nombre:</label>
-          <input formControlName="nombre" type="text" id="nombre" class="w-full p-2 border rounded" />
-          <p class="text-sm text-red-500">{{ obtenerMensajesError('nombre') }}</p>
+          <input formControlName="nombreMeta" type="text" id="nombre" class="w-full p-2 border rounded" />
+          <p class="text-sm text-red-500">{{ obtenerMensajesError('nombreMeta') }}</p>
         </div>
     
         <div class="mb-4">
           <label for="cantidad" class="block text-gray-700 kanit-bold mb-2">Cantidad de Monedas:</label>
-          <input formControlName="cantidadMonedas" type="number" id="cantidad" class="w-full p-2 border rounded" />
-          <p class="text-sm text-red-500">{{ obtenerMensajesError('cantidadMonedas') }}</p>
+          <input formControlName="dineroNecesario" type="number" id="cantidad" class="w-full p-2 border rounded" />
+          <p class="text-sm text-red-500">{{ obtenerMensajesError('dineroNecesario') }}</p>
         </div>
     
         <div class="mb-4">
           <label for="descripcion" class="block text-gray-700 kanit-bold mb-2">Descripción:</label>
-          <textarea formControlName="descripcion" id="descripcion" class="w-full p-2 border rounded"></textarea>
-          <p class="text-sm text-red-500">{{ obtenerMensajesError('descripcion') }}</p>
+          <textarea formControlName="descripcionMeta" id="descripcion" class="w-full p-2 border rounded"></textarea>
+          <p class="text-sm text-red-500">{{ obtenerMensajesError('descripcionMeta') }}</p>
         </div>
 
         <div class="form-group mb-4">
           <label for="imagen" class="block text-gray-700 kanit-bold mb-2">Imagen:</label>
-          <input formControlName="imagen" type="file" id="imagen" name="imagen" accept=".jpg, .png" class="kanit-extralight shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          <input formControlName="imagen" type="file" (change)="onFileSelected($event)"  id="imagen" name="imagen" accept=".jpg, .png" class="kanit-extralight shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
           <p class="text-sm text-red-500 p-1 kanit-extralight">
             {{obtenerMensajesError('imagen')}}
           </p>
@@ -92,10 +92,10 @@
   transition-all duration-500 rounded-3xl w-full h-full opacity-100 pointer-events-auto 
   md:opacity-0 md:hover:opacity-100 md:peer-hover:opacity-100 md:pointer-events-auto sm:opacity-100 sm:pointer-events-auto">
 
-        <img [src]="meta.linkImagen" alt="imagen" class="w-100 h-auto rounded-lg p-2">
+        <img [src]="meta.imagen" alt="imagen" class="w-100 h-auto rounded-lg p-2">
         <p class="text-gray-900 kanit-semibold">{{ meta.nombreMeta }}</p>
-        <p class="text-gray-700 kanit-semibold">{{ meta.cantidadMonedas }}/{{ meta.cantidadTotal }} monedas</p>
-        <p class="text-gray-600 text-sm kanit-semibold">{{ meta.descripcion }}</p>
+        <p class="text-gray-700 kanit-semibold">{{ meta.dineroRecaudado }}/{{ meta.dineroNecesario }} monedas</p>
+        <p class="text-gray-600 text-sm kanit-semibold">{{ meta.descripcionMeta }}</p>
         <button (click)="mostrarFormularioDonacion = true" 
           class="px-4 py-2 bg-green-500 text-white kanit-bold rounded-lg shadow-md 
           hover:bg-green-600 transition duration-300 pointer-events-auto z-20">
@@ -202,7 +202,7 @@
 
       <!-- Contenido principal (siempre visible) -->
       <div class="w-full h-full flex flex-col items-center justify-center text-center p-4 space-y-2">
-        <img [src]="meta.linkImagen" alt="imagen" class="w-32 h-32 rounded-full mb-2">
+        <img [src]="meta.imagen" alt="imagen" class="w-32 h-32 rounded-full mb-2">
         <p class="text-gray-900 kanit-semibold">{{ meta.nombreMeta }}</p>
       </div>
     </div>

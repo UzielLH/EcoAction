@@ -43,7 +43,9 @@ export class NavbarComponent {
 
   logout(): void {
     this.isLoggedIn = false;
-    localStorage.removeItem('rol'); // Limpia el rol del localStorage
+    localStorage.clear(); // Limpia todo el localStorage    
     this.router.navigate(['/home']); // Redirigir al dashboard o página principal
+    location.reload(); // Reinicia la página
+
   }
 }
