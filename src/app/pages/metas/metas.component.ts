@@ -9,6 +9,7 @@ import { map } from 'rxjs';
 import imageCompression from 'browser-image-compression';
 
 interface Meta {
+  id: number;
   nombreMeta: string;
   dineroNecesario: number;
   dineroRecaudado: number;
@@ -23,6 +24,7 @@ interface Meta {
 })
 export class MetasComponent implements OnInit {
   metas: Meta[] = [];
+  metaSeleccionada!: Meta;
   saldoPersona=0;
   userRole = localStorage.getItem('rol') ; // Obtener el rol del localStorage o asignar 'user' por defecto	
   mostrarFormulario = false;
@@ -81,7 +83,7 @@ export class MetasComponent implements OnInit {
       imagen: [null, [Validators.required]]
     });
     this.donacionForm=this.fb.group({
-      cantidad: ['', [Validators.required, Validators.min(1)]]
+      donacion: ['', [Validators.required, Validators.min(1)]]
     });
     this.SaldoForm=this.fb.group({
       saldo: ['', [Validators.required, Validators.min(1)]],
@@ -145,44 +147,116 @@ register() {
   });
 }
 
-    registerDonation() {
-      if (!this.userRole) {
-        Swal.fire({
-          title: 'Inicia sesión',
-          text: 'Debes iniciar sesión para poder realizar una donación.',
-          icon: 'warning',
-          timer: 2000,
-          showConfirmButton: false
-        });
-        return; // Detener ejecución si no hay rol
-      }
-    
-      if (this.donacionForm.invalid) {
-        this.donacionForm.markAllAsTouched();
-        Swal.fire({
-          title: 'Error',
-          text: 'No se pudo realizar la donación. Por favor, revise los campos o la conexión.',
-          icon: 'error',
-          timer: 2000,
-          showConfirmButton: false
-        });
-        return;
-      }
-    
-      console.log('Donando...', this.donacionForm.value);
-    
+registerDonation() {
+  if (!this.userRole) {
+    Swal.fire({
+      title: 'Inicia sesión',
+      text: 'Debes iniciar sesión para poder realizar una donación.',
+      icon: 'warning',
+      timer: 2000,
+      showConfirmButton: false
+    });
+    return; // Detener ejecución si no hay rol
+  }
+
+  if (this.donacionForm.invalid) {
+    this.donacionForm.markAllAsTouched();
+    Swal.fire({
+      title: 'Error',
+      text: 'No se pudo realizar la donación. Por favor, revise los campos o la conexión.',
+      icon: 'error',
+      timer: 2000,
+      showConfirmButton: false
+    });
+    return;
+  }
+
+  const donacion = this.donacionForm.value.donacion;
+  const metaId = this.metaSeleccionada.id;
+  const uuid = localStorage.getItem('userUuid');
+
+  if (!uuid) {
+    Swal.fire({
+      title: 'Error',
+      text: 'No se pudo identificar al usuario. Por favor, inicia sesión nuevamente.',
+      icon: 'error',
+      timer: 2000,
+      showConfirmButton: false
+    });
+    return;
+  }
+
+  // Validar si el saldo es suficiente
+  if (donacion > this.saldoPersona) {
+    Swal.fire({
+      title: 'Saldo insuficiente',
+      text: 'No tienes saldo suficiente para realizar esta donación.',
+      icon: 'error',
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'Aceptar'
+    });
+    return;
+  }
+
+  // Validar si la donación no excede la cantidad necesaria
+  const restante = this.metaSeleccionada.dineroNecesario - this.metaSeleccionada.dineroRecaudado;
+  if (donacion > restante) {
+    Swal.fire({
+      title: 'Donación excedida',
+      text: `La donación excede la cantidad necesaria para esta meta. Solo se necesitan ${restante} monedas.`,
+      icon: 'warning',
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'Aceptar'
+    });
+    return;
+  }
+
+  console.log('Donando...', { metaId, donacion });
+
+  this.metasService.donarMeta(metaId, donacion).subscribe({
+    next: () => {
+      // Descontar el saldo del monedero del usuario
+      this.monederoService.descontarSaldo(uuid, donacion).subscribe({
+        next: () => {
+          // Actualizar el saldo local
+          this.saldoPersona -= donacion;
+          
+          Swal.fire({
+            title: 'Donación realizada',
+            text: 'La donación ha sido realizada exitosamente.',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+          }).then(() => {
+            this.mostrarFormularioDonacion = false;
+            this.donacionForm.reset();
+            this.obtenerMetas(); // Actualizar las metas después de la donación
+          });
+        },
+        error: (error) => {
+          console.error('Error al descontar el saldo:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'La donación se realizó, pero hubo un problema al actualizar tu saldo. Actualiza la página para ver tu saldo correcto.',
+            icon: 'warning',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Aceptar'
+          });
+        }
+      });
+    },
+    error: (error) => {
+      console.error('Error al realizar la donación:', error);
       Swal.fire({
-        title: 'Donación realizada',
-        text: 'La donación ha sido realizada exitosamente.',
-        icon: 'success',
-        timer: 2000,
-        showConfirmButton: false
-      }).then(() => {
-        this.mostrarFormularioDonacion = false;
-        this.donacionForm.reset();
-        this.router.navigate(['/metas']);
+        title: 'Error',
+        text: 'No se pudo realizar la donación. Por favor, inténtalo más tarde.',
+        icon: 'error',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Aceptar'
       });
     }
+  });
+}
     
   registerSaldo() {
     if (this.SaldoForm.invalid) {
@@ -360,6 +434,7 @@ onFileSelected(event: any): void {
 obtenerMetas(): void {
   this.metasService.mostrarMetas().pipe(
     map((data: any[]) => data.map(item => ({
+      id: item.id,
       nombreMeta: item.nombreMeta,
       dineroNecesario: item.dineroNecesario,
       dineroRecaudado: item.dineroRecaudado,
@@ -377,4 +452,8 @@ obtenerMetas(): void {
   });
 }
 
+abrirFormularioDonacion(meta: Meta) {
+  this.metaSeleccionada = meta;
+  this.mostrarFormularioDonacion = true;
+}
 }

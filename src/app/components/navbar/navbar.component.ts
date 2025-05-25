@@ -16,7 +16,7 @@ export class NavbarComponent {
   private router = inject(Router);
 
   // userRole: string = 'admin';
-  userRole: string = localStorage.getItem('rol') || 'user-realm-rol'; // Obtener el rol del localStorage o asignar 'user' por defecto	
+  userRole: string = localStorage.getItem('rol') || 'sinRol'; // Obtener el rol del localStorage o asignar 'user' por defecto	
   
   ngOnInit(): void {
     // Detecta si el usuario está logueado al cargar el componente
@@ -32,7 +32,8 @@ export class NavbarComponent {
     const roleAccess: { [key: string]: string[] } = {
       'admin-realm-rol': ['home','mapa', 'metas', 'informacion', 'tips', 'colocacionPuntos', 'creacionMetas', 'crearEmpresa', 'crearAdmin'],
       'empresa-realm-rol': ['home','mapa', 'metas', 'informacion', 'tips', 'colocacionPuntos', 'perfil'],
-      'user-realm-rol': ['home','mapa', 'metas', 'informacion', 'tips', 'perfil']
+      'user-realm-rol': ['home','mapa', 'metas', 'informacion', 'tips', 'perfil'],
+      'sinRol': ['home','mapa', 'metas', 'informacion', 'tips']
     };
      // Si el rol no existe o no está definido, mostrar los enlaces de 'user'
     if (!roleAccess[role]) {

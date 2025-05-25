@@ -32,6 +32,7 @@ export class CrearEmpresaComponent {
       telefono:['',[Validators.required, Validators.pattern('^[0-9+]{10,15}$')]],
       horario:['', [Validators.required, Validators.minLength(5)]],
       latitud:['', [Validators.required, Validators.pattern('^-?([1-8]?[0-9]|90)\\.\\d+$')]],
+      file:['', [Validators.required]],
       longitud:['', [Validators.required, Validators.pattern('^-?((1[0-7][0-9])|([1-9]?[0-9]))\\.\\d+$')]],
       password: ['', [Validators.required, Validators.minLength(8)]]
     });
@@ -53,27 +54,55 @@ registroEmpresa() {
   }
 
   const empresaData = this.registerEmpresa.value;
+  // Get file from form control for later use
+  const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+  const imageFile = fileInput?.files?.[0];
+  
+  if (!imageFile) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Por favor selecciona una imagen para la empresa',
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'Aceptar'
+    });
+    return;
+  }
+
+  // First create the company
   this.creacionEmpresaService.crearEmpresa(empresaData)
     .then(response => {
+      // Extract company ID from response
+      const empresaId = response.id;
+      
+      if (!empresaId) {
+        throw new Error('No se pudo obtener el ID de la empresa creada');
+      }
+      
+      // Now upload the image with the company ID
+      return this.creacionEmpresaService.subirImagen(empresaId, imageFile);
+    })
+    .then(() => {
+      // Show success message after both operations complete
       Swal.fire({
         icon: 'success',
         title: '¡Éxito!',
-        text: 'La empresa ha sido creada exitosamente.',
+        text: 'La empresa ha sido creada y la imagen ha sido subida exitosamente.',
         timer: 2000,
         showConfirmButton: false
       });
     })
     .catch(error => {
-      // Verifica si el backend envió un mensaje de error
+      // Handle errors from either operation
       const errorMessage = error?.message || 'Ocurrió un error al crear la empresa. Por favor, inténtalo de nuevo.';
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: errorMessage, // Muestra el mensaje del backend si está disponible
+        text: errorMessage,
         confirmButtonColor: '#d33',
         confirmButtonText: 'Aceptar'
       });
-      console.error('Error al crear la empresa:', error);
+      console.error('Error en el proceso de registro:', error);
     });
 }
 

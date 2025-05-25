@@ -52,7 +52,15 @@
         <p class="text-sm text-red-500 p-1 kanit-extralight">
           {{obtenerMensajesErrorEmpresa('fechaNacimiento')}}
         </p>
-        
+        <label class="block text-gray-700 kanit-semibold mb-1">Imagen de la empresa:</label>
+        <input 
+          type="file" 
+          formControlName="file"
+          accept=".jpg,.jpeg,.png,image/jpeg,image/png" 
+          class="w-full p-3 border rounded-lg mb-4 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
+        <p class="text-sm text-red-500 p-1 kanit-extralight">
+          {{obtenerMensajesErrorEmpresa('file')}}
+        </p>
         <label class="block text-gray-700 kanit-semibold mb-1">Latitud:</label>
         <input type="number" formControlName="latitud" placeholder="Ingresa latitud de la ubicación" class="w-full p-3 border rounded-lg mb-4 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
         <p class="text-sm text-red-500 p-1 kanit-extralight">

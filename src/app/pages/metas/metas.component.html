@@ -96,7 +96,7 @@
         <p class="text-gray-900 kanit-semibold">{{ meta.nombreMeta }}</p>
         <p class="text-gray-700 kanit-semibold">{{ meta.dineroRecaudado }}/{{ meta.dineroNecesario }} monedas</p>
         <p class="text-gray-600 text-sm kanit-semibold">{{ meta.descripcionMeta }}</p>
-        <button (click)="mostrarFormularioDonacion = true" 
+        <button (click)="abrirFormularioDonacion(meta)"  
           class="px-4 py-2 bg-green-500 text-white kanit-bold rounded-lg shadow-md 
           hover:bg-green-600 transition duration-300 pointer-events-auto z-20">
           Donar
@@ -118,9 +118,9 @@
             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <span class="text-gray-500">$</span>
             </div>
-            <input formControlName="cantidad" type="number" id="cantidad" class="w-full p-2 pl-7 border rounded" />
+            <input formControlName="donacion" type="number" id="cantidad" class="w-full p-2 pl-7 border rounded" />
           </div>
-          <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorDonacion('cantidad') }}</p>
+          <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorDonacion('donacion') }}</p>
         </div>
     
         <div class="flex justify-between">

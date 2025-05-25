@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-const APIURL='http://175.1.42.56:8082/';
+const APIURL='http://175.1.60.21:8082/';
+const APIURL2='http://175.1.60.21:8072/';
 
 @Injectable({
   providedIn: 'root'
@@ -23,5 +24,12 @@ private _http=inject(HttpClient);
       console.error('Error al crear la empresa:', error);
       throw error;
     });
+  }
+
+  subirImagen(id: number, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this._http.post(`${APIURL2}ecoaction/gatewayserver/usuarios/api/usuarios/empresa/${id}/imagen`, formData);
   }
 }

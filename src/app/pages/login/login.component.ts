@@ -100,12 +100,25 @@ async register() {
       // Verificar rol
       const rol = localStorage.getItem('rol');
       if (rol === 'empresa-realm-rol') {
-        const datosEmpresa: any = await firstValueFrom(this.passwordService.DatosEmpresa());
+        const datosEmpresa: any = await firstValueFrom(this.passwordService.DatosEmpresa(localStorage.getItem('userUuid') || ''));
+        console.log('Datos de la empresa:', datosEmpresa);
 
-        // Suponiendo que el usuario logueado es único en la respuesta
-        const usuarioActual = datosEmpresa.find((emp: any) => emp.username === username);
+        // Check if datosEmpresa is an array or a single object
+        let usuarioActual;
+        if (Array.isArray(datosEmpresa)) {
+          usuarioActual = datosEmpresa.find((emp: any) => emp.username === username);
+        } else {
+          // If it's a single object, check if it matches the username
+          // Use case-insensitive comparison for username
+          usuarioActual = datosEmpresa.username?.toLowerCase() === username.toLowerCase() ? datosEmpresa : null;
+        }
 
-        if (usuarioActual && usuarioActual.temporalPassword) {
+        // Debug output
+        console.log('Usuario actual:', usuarioActual);
+        console.log('Temporal password flag:', usuarioActual?.temporalPassword);
+
+        // Ensure we check the property correctly
+        if (usuarioActual && usuarioActual.temporalPassword === true) {
           const { value: contrasena } = await Swal.fire({
             title: 'Contraseña temporal detectada',
             input: 'password',
@@ -127,6 +140,7 @@ async register() {
           });
 
           if (contrasena) {
+            console.log('Nueva contraseña:', contrasena);
             // Llamar a la API para cambiar la contraseña
             await firstValueFrom(this.passwordService.cambiarContraseña(response.uuid, contrasena));
 
