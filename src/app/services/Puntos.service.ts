@@ -1,8 +1,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { constApi } from '../envirioments/constApi';
 
-const APIURL = 'http://175.1.53.255:8072/ecoaction/gatewayserver/';
+const APIURL = constApi.APIURL; // Asegúrate de importar constApi desde tu entorno
 
 @Injectable({
   providedIn: 'root'

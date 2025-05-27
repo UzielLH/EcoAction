@@ -1,9 +1,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { constApi } from '../envirioments/constApi';
 
-const APIURL = 'http://175.1.53.255:8072/ecoaction/gatewayserver/';
-const KEYCLOAK_APIURL = 'http://175.1.53.255:8072/ecoaction/gatewayserver/'; // URL para operaciones de Keycloak
+const APIURL = constApi.APIURL; // Asegúrate de importar constApi desde tu entorno
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +33,7 @@ export class UsuarioPerfilService {
     // Preparar los datos sin el UUID (ya que va en la URL)
     const { uuidKeycloak: _, id, ...userData } = usuario;
     
-    return this._http.put(`${KEYCLOAK_APIURL}usuarioskeycloak/api/keycloak/user/update?id=${uuidKeycloak}`, userData);
+    return this._http.put(`${APIURL}usuarioskeycloak/api/keycloak/user/update?id=${uuidKeycloak}`, userData);
   }
   
   // Método para actualizar datos de empresa - CORREGIDO
@@ -48,7 +48,7 @@ export class UsuarioPerfilService {
     // Preparar los datos sin el UUID (ya que va en la URL)
     const { uuidKeycloak: _, id, ...empresaData } = empresa;
     
-    return this._http.put(`${KEYCLOAK_APIURL}usuarioskeycloak/api/keycloak/empresa/actualizarEmpresa?id=${uuidKeycloak}`, empresaData);
+    return this._http.put(`${APIURL}usuarioskeycloak/api/keycloak/empresa/actualizarEmpresa?id=${uuidKeycloak}`, empresaData);
   }
   
   // Método alternativo usando el endpoint directo de la base de datos (si prefieres este)
