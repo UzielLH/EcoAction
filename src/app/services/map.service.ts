@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { constApi } from '../envirioments/constApi';
 
-const APIURL='http://175.1.32.17:8081/';
+const APIURL=constApi.APIURL;
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class MapService {
 
   constructor() { }
   getRecicladoras(){
-    return this._http.get(APIURL+'api/usuarios/empresa/find-all');
+    return this._http.get(APIURL+'usuarios/api/usuarios/empresa/find-all');
   }
 
 }
