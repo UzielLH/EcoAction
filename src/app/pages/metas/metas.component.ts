@@ -7,6 +7,7 @@ import { MonederoService } from '../../services/monedero.service';
 import { MetasService } from '../../services/metas.service';
 import { map } from 'rxjs';
 import imageCompression from 'browser-image-compression';
+import { TransaccionService } from '../../services/Transaccion.service';
 
 interface Meta {
   id: number;
@@ -15,6 +16,7 @@ interface Meta {
   dineroRecaudado: number;
   descripcionMeta: string;
   imagen: string;
+  statusMeta: string; 
 }
 @Component({
   selector: 'app-metas',
@@ -33,41 +35,7 @@ export class MetasComponent implements OnInit {
   private router = inject(Router); // Definir router correctamente
   private monederoService = inject(MonederoService);
   private metasService = inject(MetasService); // Cambia esto por el servicio correcto
-
-
-  // metas: Meta[] = [
-  //   {
-  //     nombreMeta: "Limpiar Zócalo",
-  //     cantidadMonedas: 120,
-  //     cantidadTotal: 500,
-  //     descripcion: "Meta para limpiar el Zócalo de la ciudad.",
-  //     linkImagen: "https://www.ciudadespatrimonio.mx/wp-content/uploads/2018/04/zocalo-oaxaca.jpg"
-  //   },
-  //   {
-  //     nombreMeta: "Reforestar Parque",
-  //     cantidadMonedas: 300,
-  //     cantidadTotal: 1000,
-  //     descripcion: "Reforestación con árboles nativos en el parque central.",
-  //     linkImagen: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/08/b2/2f/b8/estatua-y-homenaje-principal.jpg?w=1200&h=-1&s=1"
-  //   },
-  //   {
-  //     nombreMeta: "Alimentar Perritos Callejeros",
-  //     cantidadMonedas: 80,
-  //     cantidadTotal: 200,
-  //     descripcion: "Compra de alimento para perritos en situación de calle.",
-  //     linkImagen: "https://www.muyinteresante.com/wp-content/uploads/sites/5/2024/06/04/665f0461a9ae0.jpeg"
-  //   },
-  //   {
-  //     nombreMeta: "Alimentar Perritos Callejeros",
-  //     cantidadMonedas: 80,
-  //     cantidadTotal: 200,
-  //     descripcion: "Compra de alimento para perritos en situación de calle.",
-  //     linkImagen: "https://www.muyinteresante.com/wp-content/uploads/sites/5/2024/06/04/665f0461a9ae0.jpeg"
-  //   }
-  // ];
-  
-
-
+  private transaccionService = inject(TransaccionService);
   private fb=inject(FormBuilder);
   metaForm!: FormGroup;
   donacionForm!: FormGroup;
@@ -172,7 +140,7 @@ registerDonation() {
   }
 
   const donacion = this.donacionForm.value.donacion;
-  const metaId = this.metaSeleccionada.id;
+  const metaId = this.metaSeleccionada.id.toString(); // Convertir a string si es necesario
   const uuid = localStorage.getItem('userUuid');
 
   if (!uuid) {
@@ -211,38 +179,25 @@ registerDonation() {
     return;
   }
 
-  console.log('Donando...', { metaId, donacion });
+  console.log('Donando...', { metaId, donacion, uuid });
 
-  this.metasService.donarMeta(metaId, donacion).subscribe({
+  // Usar el TransaccionService para realizar la donación
+  this.transaccionService.RealizarDonacion(uuid, donacion, metaId).subscribe({
     next: () => {
-      // Descontar el saldo del monedero del usuario
-      this.monederoService.descontarSaldo(uuid, donacion).subscribe({
-        next: () => {
-          // Actualizar el saldo local
-          this.saldoPersona -= donacion;
-          
-          Swal.fire({
-            title: 'Donación realizada',
-            text: 'La donación ha sido realizada exitosamente.',
-            icon: 'success',
-            timer: 2000,
-            showConfirmButton: false
-          }).then(() => {
-            this.mostrarFormularioDonacion = false;
-            this.donacionForm.reset();
-            this.obtenerMetas(); // Actualizar las metas después de la donación
-          });
-        },
-        error: (error) => {
-          console.error('Error al descontar el saldo:', error);
-          Swal.fire({
-            title: 'Error',
-            text: 'La donación se realizó, pero hubo un problema al actualizar tu saldo. Actualiza la página para ver tu saldo correcto.',
-            icon: 'warning',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Aceptar'
-          });
-        }
+      // Actualizar el saldo local después de la donación exitosa
+      this.saldoPersona -= donacion;
+      
+      Swal.fire({
+        title: 'Donación realizada',
+        text: 'La donación ha sido realizada exitosamente.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
+      }).then(() => {
+        this.mostrarFormularioDonacion = false;
+        this.donacionForm.reset();
+        this.obtenerMetas(); // Actualizar las metas después de la donación
+        this.obtenerSaldo(); // Actualizar el saldo actual
       });
     },
     error: (error) => {
@@ -259,31 +214,63 @@ registerDonation() {
 }
     
   registerSaldo() {
-    if (this.SaldoForm.invalid) {
-      this.SaldoForm.markAllAsTouched();
-      Swal.fire({
-        title: 'Error',
-        text: 'No se pudo recargar el saldo. Por favor, revise los campos o la conexión.',
-        icon: 'error',
-        timer: 2000,
-        showConfirmButton: false
-      });
-      return;
-    }
-    console.log('Recargando saldo...', this.SaldoForm.value);
-
+  if (this.SaldoForm.invalid) {
+    this.SaldoForm.markAllAsTouched();
     Swal.fire({
-      title: 'Saldo recargado',
-      text: 'El saldo ha sido recargado exitosamente.',
-      icon: 'success',
+      title: 'Error',
+      text: 'No se pudo recargar el saldo. Por favor, revise los campos o la conexión.',
+      icon: 'error',
       timer: 2000,
       showConfirmButton: false
-    }).then(() => {
-      this.mostrarFormularioSaldo = false;
-      this.SaldoForm.reset();
-      this.router.navigate(['/metas']);
     });
+    return;
   }
+
+  const uuid = localStorage.getItem('userUuid');
+  if (!uuid) {
+    Swal.fire({
+      title: 'Error',
+      text: 'No se pudo identificar al usuario. Por favor, inicia sesión nuevamente.',
+      icon: 'error',
+      timer: 2000,
+      showConfirmButton: false
+    });
+    return;
+  }
+
+  const monto = this.SaldoForm.value.saldo;
+  const nombreTarjeta = this.SaldoForm.value.nombreTarjeta;
+  const numeroTarjeta = this.SaldoForm.value.notarjeta;
+
+  console.log('Recargando saldo...', { uuid, monto, nombreTarjeta, numeroTarjeta });
+
+  // Usar el TransaccionService para realizar la recarga
+  this.transaccionService.crearRecarga(uuid, monto, nombreTarjeta, numeroTarjeta).subscribe({
+    next: () => {
+      Swal.fire({
+        title: 'Saldo recargado',
+        text: 'El saldo ha sido recargado exitosamente.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
+      }).then(() => {
+        this.mostrarFormularioSaldo = false;
+        this.SaldoForm.reset();
+        this.obtenerSaldo(); // Actualizar el saldo actual
+      });
+    },
+    error: (error) => {
+      console.error('Error al realizar la recarga:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo realizar la recarga. Por favor, inténtalo más tarde.',
+        icon: 'error',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Aceptar'
+      });
+    }
+  });
+}
 
   formatVencimiento(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -365,8 +352,10 @@ registerDonation() {
   
 
     ngOnInit(): void {
-    this.obtenerSaldo(); // Llamar al método para recuperar el saldo al inicializar el componente
-    this.obtenerMetas();
+    if (this.userRole === 'user-realm-rol') {
+    this.obtenerSaldo();
+    }
+      this.obtenerMetas();
   }
 
   obtenerSaldo(): void {
@@ -439,7 +428,8 @@ obtenerMetas(): void {
       dineroNecesario: item.dineroNecesario,
       dineroRecaudado: item.dineroRecaudado,
       descripcionMeta: item.descripcionMeta,
-      imagen: item.imagen
+      imagen: item.imagen,
+      statusMeta: item.statusMeta // Asegúrate de que este campo exista en tu API
     })))
   ).subscribe({
     next: (data: Meta[]) => {

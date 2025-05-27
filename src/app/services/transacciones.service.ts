@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-const APIURL='http://175.1.60.21:8072/ecoaction/gatewayserver/';
+import { constApi } from '../envirioments/constApi';
+const APIURL=constApi.APIURL;
 
 @Injectable({
   providedIn: 'root'

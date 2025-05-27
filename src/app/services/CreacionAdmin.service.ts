@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-const APIURL='http://175.1.60.21:8082/';
+import { constApi } from '../envirioments/constApi';
+const APIURL=constApi.APIURL;
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ private _http=inject(HttpClient);
 
   constructor() { }
   crearAdmin(admin: any) {
-    const url = `${APIURL}api/keycloak/admin/crearAdmin`;
+    const url = `${APIURL}usuarioskeycloak/api/keycloak/admin/crearAdmin`;
     return fetch(url, {
       method: 'POST',
       headers: {

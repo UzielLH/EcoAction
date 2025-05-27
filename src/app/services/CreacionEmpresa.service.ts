@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-const APIURL='http://175.1.60.21:8082/';
-const APIURL2='http://175.1.60.21:8072/';
+import { constApi } from '../envirioments/constApi';
+const APIURL=constApi.APIURL;
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +11,7 @@ private _http=inject(HttpClient);
 
   constructor() { }
   crearEmpresa(empresa: any) {
-    const url = `${APIURL}api/keycloak/empresa/crearEmpresa`;
+    const url = `${APIURL}usuarioskeycloak/api/keycloak/empresa/crearEmpresa`;
     return fetch(url, {
       method: 'POST',
       headers: {
@@ -30,6 +30,6 @@ private _http=inject(HttpClient);
     const formData = new FormData();
     formData.append('file', file);
 
-    return this._http.post(`${APIURL2}ecoaction/gatewayserver/usuarios/api/usuarios/empresa/${id}/imagen`, formData);
+    return this._http.post(`${APIURL}usuarios/api/usuarios/empresa/${id}/imagen`, formData);
   }
 }

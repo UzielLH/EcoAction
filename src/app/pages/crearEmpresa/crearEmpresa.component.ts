@@ -47,17 +47,16 @@ export class CrearEmpresaComponent {
   }
   
   
-registroEmpresa() {
+async registroEmpresa() {
   if (this.registerEmpresa.invalid) {
     this.registerEmpresa.markAllAsTouched();
     return;
   }
 
   const empresaData = this.registerEmpresa.value;
-  // Get file from form control for later use
   const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
   const imageFile = fileInput?.files?.[0];
-  
+
   if (!imageFile) {
     Swal.fire({
       icon: 'error',
@@ -69,42 +68,36 @@ registroEmpresa() {
     return;
   }
 
-  // First create the company
-  this.creacionEmpresaService.crearEmpresa(empresaData)
-    .then(response => {
-      // Extract company ID from response
-      const empresaId = response.id;
-      
-      if (!empresaId) {
-        throw new Error('No se pudo obtener el ID de la empresa creada');
-      }
-      
-      // Now upload the image with the company ID
-      return this.creacionEmpresaService.subirImagen(empresaId, imageFile);
-    })
-    .then(() => {
-      // Show success message after both operations complete
-      Swal.fire({
-        icon: 'success',
-        title: '¡Éxito!',
-        text: 'La empresa ha sido creada y la imagen ha sido subida exitosamente.',
-        timer: 2000,
-        showConfirmButton: false
-      });
-    })
-    .catch(error => {
-      // Handle errors from either operation
-      const errorMessage = error?.message || 'Ocurrió un error al crear la empresa. Por favor, inténtalo de nuevo.';
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: errorMessage,
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'Aceptar'
-      });
-      console.error('Error en el proceso de registro:', error);
+  try {
+    const response = await this.creacionEmpresaService.crearEmpresa(empresaData);
+    const empresaId = response?.id;
+
+    if (!empresaId) {
+      throw new Error('No se pudo obtener el ID de la empresa creada');
+    }
+
+    await this.creacionEmpresaService.subirImagen(empresaId, imageFile).toPromise();
+
+    Swal.fire({
+      icon: 'success',
+      title: '¡Éxito!',
+      text: 'La empresa ha sido creada y la imagen ha sido subida exitosamente.',
+      timer: 2000,
+      showConfirmButton: false
     });
+  } catch (error: any) {
+    const errorMessage = error?.message || 'Ocurrió un error al crear la empresa. Por favor, inténtalo de nuevo.';
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: errorMessage,
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'Aceptar'
+    });
+    console.error('Error en el proceso de registro:', error);
+  }
 }
+
 
 
 
