@@ -1,1 +1,296 @@
-<p>perfil works!</p>,
+<div class="profile-container">
+  <h1 class="text-2xl font-bold mb-6">Mi Perfil</h1>
+
+  <!-- Pantalla de carga -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-10">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+    <p class="ml-4 text-gray-600">Cargando perfil...</p>
+  </div>
+
+  <!-- Perfil de Usuario -->
+  <div *ngIf="!isLoading && !isEmpresa && usuarioData && !isEditingUsuario" class="user-profile">
+    <div class="profile-header">
+      <div class="image-placeholder">
+        {{ usuarioData.nombre?.charAt(0) || 'U' }}
+      </div>
+      <div class="profile-info">
+        <h2 class="text-xl font-semibold">{{ usuarioData.nombre }} {{ usuarioData.apellidos }}</h2>
+        <p class="text-gray-600 font-bold"> Username: {{ usuarioData.username }}</p>
+        <p class="text-sm text-blue-600 font-bold">Tipo: Usuario Individual</p>
+        <!-- Botón Editar -->
+        <button (click)="startEditUsuario()" class="edit-button mt-2 font-bold uppercase">
+          ✏️ Editar Perfil
+        </button>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Nombre</span>
+        <div class="info-value">{{ usuarioData.nombre || 'No disponible' }}</div>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-label">Apellidos</span>
+        <div class="info-value">{{ usuarioData.apellidos || 'No disponible' }}</div>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-label">Email</span>
+        <div class="info-value">{{ usuarioData.email || 'No disponible' }}</div>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-label">Usuario</span>
+        <div class="info-value">{{ usuarioData.username || 'No disponible' }}</div>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-label">Fecha de Nacimiento</span>
+        <div class="info-value">{{ formatDate(usuarioData.fechaNacimiento) }}</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Formulario de Edición de Usuario -->
+  <div *ngIf="!isLoading && !isEmpresa && usuarioData && isEditingUsuario" class="edit-form">
+    <h2 class="text-xl font-semibold mb-4">Editar Perfil de Usuario</h2>
+    
+    <form [formGroup]="usuarioForm" (ngSubmit)="saveUsuario()">
+      <div class="form-group">
+        <label class="form-label" for="nombre">Nombre *</label>
+        <input type="text" id="nombre" formControlName="nombre" class="form-input" 
+               [class.border-red-500]="isFieldInvalid(usuarioForm, 'nombre')">
+        <div *ngIf="isFieldInvalid(usuarioForm, 'nombre')" class="form-error">
+          El nombre es obligatorio.
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="apellidos">Apellidos *</label>
+        <input type="text" id="apellidos" formControlName="apellidos" class="form-input"
+               [class.border-red-500]="isFieldInvalid(usuarioForm, 'apellidos')">
+        <div *ngIf="isFieldInvalid(usuarioForm, 'apellidos')" class="form-error">
+          Los apellidos son obligatorios.
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="email">Email *</label>
+        <input type="email" id="email" formControlName="email" class="form-input"
+               [class.border-red-500]="isFieldInvalid(usuarioForm, 'email')">
+        <div *ngIf="isFieldInvalid(usuarioForm, 'email')" class="form-error">
+          Ingrese un email válido.
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="fechaNacimiento">Fecha de Nacimiento</label>
+        <input type="date" id="fechaNacimiento" formControlName="fechaNacimiento" class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="username">Nombre de Usuario *</label>
+        <input type="text" id="username" formControlName="username" class="form-input"
+               [class.border-red-500]="isFieldInvalid(usuarioForm, 'username')">
+        <div *ngIf="isFieldInvalid(usuarioForm, 'username')" class="form-error">
+          El nombre de usuario es obligatorio.
+        </div>
+      </div>
+      
+      <div class="btn-group">
+        <button type="button" class="btn btn-outline" (click)="cancelEdit()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Perfil de Empresa -->
+  <div *ngIf="!isLoading && isEmpresa && empresaData && !isEditingEmpresa" class="empresa-profile">
+    <div class="profile-header">
+      <!-- Imagen de la empresa si existe -->
+      <img *ngIf="imagen" [src]="imagen" alt="Logo de la empresa" class="profile-image">
+      
+      <!-- Placeholder si no hay imagen o no se puede cargar -->
+      <div *ngIf="!imagen" class="image-placeholder" [class.has-image-url]="empresaData.imagen">
+        {{ empresaData.nombre?.charAt(0) || 'E' }}
+        <div *ngIf="empresaData.imagen" class="text-xs mt-1 text-center">
+          📷 Imagen disponible
+        </div>
+      </div>
+      
+      <div class="profile-info">
+        <h2 class="text-xl font-semibold">{{ empresaData.nombre }}</h2>
+        <p class="text-gray-600 font-bold"> Username: {{ empresaData.username }}</p>
+        <p class="text-sm text-green-600 font-bold">Tipo: Empresa</p>
+        <p *ngIf="empresaData.imagen && !imagen" class="text-xs text-amber-600 mt-1">
+          ⚠️ Imagen disponible pero sin endpoint de acceso
+        </p>
+        
+        <!-- Botón Editar -->
+        <button (click)="startEditEmpresa()" class="edit-button mt-2 font-bold uppercase">
+          ✏️ Editar Perfil
+        </button>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Nombre de la Empresa</span>
+        <div class="info-value">{{ empresaData.nombre || 'No disponible' }}</div>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-label">Email</span>
+        <div class="info-value">{{ empresaData.email || 'No disponible' }}</div>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-label">Usuario</span>
+        <div class="info-value">{{ empresaData.username || 'No disponible' }}</div>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-label">Horario de Atención</span>
+        <div class="info-value">{{ empresaData.horario || 'No disponible' }}</div>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-label">Fecha de Registro</span>
+        <div class="info-value">{{ formatDate(empresaData.fechaNacimiento) }}</div>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-label">Dirección</span>
+        <div class="info-value">{{ empresaData.direccion || 'No disponible' }}</div>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-label">Teléfono</span>
+        <div class="info-value">{{ empresaData.telefono || 'No disponible' }}</div>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-label">Coordenadas GPS</span>
+        <div class="info-value">{{ formatCoordinates(empresaData.latitud, empresaData.longitud) }}</div>
+      </div>
+    </div>
+    
+    <!-- Mapa de ubicación -->
+    <div *ngIf="empresaData.latitud && empresaData.longitud" class="mt-8">
+      <h3 class="text-lg font-semibold mb-2">Ubicación de la Empresa</h3>
+      
+      <!-- Contenedor del mapa -->
+      <div id="map" class="location-map"></div>
+      
+      <!-- Información de ubicación -->
+      <div class="flex justify-between text-sm text-gray-600 mt-2">
+        <p>📍 {{ formatCoordinates(empresaData.latitud, empresaData.longitud) }}</p>
+        <p *ngIf="empresaData.direccion" class="text-right">📌 {{ empresaData.direccion }}</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Formulario de Edición de Empresa -->
+  <div *ngIf="!isLoading && isEmpresa && empresaData && isEditingEmpresa" class="edit-form">
+    <h2 class="text-xl font-semibold mb-4">Editar Perfil de Empresa</h2>
+    
+    <form [formGroup]="empresaForm" (ngSubmit)="saveEmpresa()">
+      <div class="form-group">
+        <label class="form-label" for="nombre_empresa">Nombre de la Empresa *</label>
+        <input type="text" id="nombre_empresa" formControlName="nombre" class="form-input"
+               [class.border-red-500]="isFieldInvalid(empresaForm, 'nombre')">
+        <div *ngIf="isFieldInvalid(empresaForm, 'nombre')" class="form-error">
+          El nombre de la empresa es obligatorio.
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="email_empresa">Email *</label>
+        <input type="email" id="email_empresa" formControlName="email" class="form-input"
+               [class.border-red-500]="isFieldInvalid(empresaForm, 'email')">
+        <div *ngIf="isFieldInvalid(empresaForm, 'email')" class="form-error">
+          Ingrese un email válido.
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="username_empresa">Nombre de Usuario *</label>
+        <input type="text" id="username_empresa" formControlName="username" class="form-input"
+               [class.border-red-500]="isFieldInvalid(empresaForm, 'username')">
+        <div *ngIf="isFieldInvalid(empresaForm, 'username')" class="form-error">
+          El nombre de usuario es obligatorio.
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="telefono">Teléfono</label>
+        <input type="tel" id="telefono" formControlName="telefono" class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="direccion">Dirección</label>
+        <input type="text" id="direccion" formControlName="direccion" class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="horario">Horario de Atención</label>
+        <input type="text" id="horario" formControlName="horario" class="form-input">
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="form-group">
+          <label class="form-label" for="latitud">Latitud</label>
+          <input type="number" id="latitud" formControlName="latitud" class="form-input"
+                 [class.border-red-500]="isFieldInvalid(empresaForm, 'latitud')"
+                 step="0.000001">
+          <div *ngIf="isFieldInvalid(empresaForm, 'latitud')" class="form-error">
+            La latitud debe estar entre -90 y 90.
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="longitud">Longitud</label>
+          <input type="number" id="longitud" formControlName="longitud" class="form-input"
+                 [class.border-red-500]="isFieldInvalid(empresaForm, 'longitud')"
+                 step="0.000001">
+          <div *ngIf="isFieldInvalid(empresaForm, 'longitud')" class="form-error">
+            La longitud debe estar entre -180 y 180.
+          </div>
+        </div>
+      </div>
+      
+      <!-- Nota informativa sobre coordenadas -->
+      <div class="bg-blue-50 p-3 rounded border border-blue-200 text-blue-800 text-sm mt-2">
+        <p class="font-semibold">📍 Acerca de las coordenadas GPS</p>
+        <p>Para obtener las coordenadas exactas de tu ubicación, puedes usar Google Maps:</p>
+        <ol class="list-decimal list-inside mt-1">
+          <li>Busca tu ubicación en Google Maps</li>
+          <li>Haz clic derecho en el punto exacto</li>
+          <li>Selecciona "¿Qué hay aquí?"</li>
+          <li>Copia los números que aparecen en la tarjeta inferior</li>
+        </ol>
+      </div>
+      
+      <div class="btn-group">
+        <button type="button" class="btn btn-outline" (click)="cancelEdit()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Mensaje si no hay datos -->
+  <div *ngIf="!isLoading && !usuarioData && !empresaData" class="text-center py-8">
+    <div class="bg-yellow-100 border border-yellow-400 rounded p-4">
+      <p class="text-yellow-800 font-semibold">⚠️ No se encontraron datos del perfil</p>
+      <p class="text-yellow-700 mt-2">Posibles causas:</p>
+      <ul class="text-yellow-600 text-sm mt-2 list-disc list-inside">
+        <li>Sesión expirada</li>
+        <li>Rol no definido correctamente</li>
+        <li>UUID no válido</li>
+        <li>Problemas de conectividad con el servidor</li>
+      </ul>
+      <p class="text-yellow-700 mt-3">Por favor, cierre sesión e inicie sesión nuevamente.</p>
+    </div>
+  </div>
+</div>
