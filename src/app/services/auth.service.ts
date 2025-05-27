@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs'; // Importar firstValueFrom para convertir Observable a Promise
 
-const APIURL='http://175.1.33.63:8082/';
+const APIURL='http://175.1.53.255:8072/ecoaction/gatewayserver/';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +12,7 @@ private _http=inject(HttpClient);
 
   constructor() { }
   login(user:any){
-    return this._http.post(APIURL+'api/keycloak/auth/login',user);
+    return this._http.post(APIURL+'usuarioskeycloak/api/keycloak/auth/login',user);
   }
 
   // async login(username: string, password: string): Promise<any> {
