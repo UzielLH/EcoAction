@@ -1,10 +1,25 @@
 <h1 class="text-4xl text-center pt-2 kanit-bold">Recicladoras cerca de ti</h1>
 
-<div id="mapa" class="w-full h-96 m-1"></div>
-<div *ngIf="recicladoraSeleccionada" class="p-5 bg-white shadow-md rounded-lg w-100">
-  <h2 class="text-xl kanit-bold mb-2">{{ recicladoraSeleccionada.nombre }}</h2>
-  <img [src]="recicladoraSeleccionada.imagen" alt="{{ recicladoraSeleccionada.nombre }}" class="w-full h-48 object-cover mb-3">
-  <p><strong>Dirección:</strong> {{ recicladoraSeleccionada.direccion }}</p>
-  <p><strong>Teléfono:</strong> {{ recicladoraSeleccionada.telefono }}</p>
-  <p><strong>Horario:</strong> {{ recicladoraSeleccionada.horario }}</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-auto md:h-[80vh] p-2 md:p-4">
+  <!-- Cards -->
+  <div class="overflow-y-auto pr-0 md:pr-2" style="max-height: 35vh;" md:style="max-height: 70vh;">
+    <div
+      *ngFor="let recicladora of recicladoras"
+      #card
+      [id]="'card-' + recicladora.id"
+      (click)="seleccionarRecicladora(recicladora, card)"
+      [ngClass]="{'border-4 border-green-500': recicladoraSeleccionada?.id === recicladora.id, 'border': true}"
+      class="bg-white shadow-md rounded-lg mb-4 p-4 cursor-pointer transition-all duration-200"
+    >
+      <img [src]="recicladora.imagen" alt="{{ recicladora.nombre }}" class="w-full h-32 md:h-40 object-cover rounded mb-2">
+      <h2 class="text-lg kanit-bold">{{ recicladora.nombre }}</h2>
+      <p class="text-sm"><strong>Dirección:</strong> {{ recicladora.direccion }}</p>
+      <p class="text-sm"><strong>Teléfono:</strong> {{ recicladora.telefono }}</p>
+      <p class="text-sm"><strong>Horario:</strong> {{ recicladora.horario }}</p>
+    </div>
+  </div>
+  <!-- Mapa -->
+  <div class="w-full h-[35vh] md:h-[65vh]">
+    <div id="mapa" class="w-full h-full rounded-lg"></div>
+  </div>
 </div>
