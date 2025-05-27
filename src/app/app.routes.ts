@@ -10,6 +10,9 @@ import { CreacionMetasComponent } from './pages/creacion-metas/creacion-metas.co
 import { MetasCardComponent } from './components/metas-card/metas-card.component';
 import { MetasComponent } from './pages/metas/metas.component';
 import { AddFondosComponent } from './pages/add-fondos/add-fondos.component';
+import { CrearEmpresaComponent } from './pages/crearEmpresa/crearEmpresa.component';
+import { CrearAdminComponent } from './pages/crearAdmin/crearAdmin.component';
+import { PerfilComponent } from './pages/perfil/perfil.component';
 
 export const routes: Routes = [
     {
@@ -50,6 +53,18 @@ export const routes: Routes = [
     {
         path:'addFondos',
         component: AddFondosComponent
+    },
+    {
+        path:'crearEmpresa',
+        component: CrearEmpresaComponent
+    },
+    {
+        path:'crearAdmin',
+        component: CrearAdminComponent
+    },
+    {
+        path:'perfil',
+        component: PerfilComponent
     },
     {
         path:'**',

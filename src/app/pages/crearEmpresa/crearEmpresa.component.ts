@@ -1,34 +1,37 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { forbiddenName } from '../../validators/forbiddenName';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-sign-up',
+  selector: 'app-crear-empresa',
   imports: [RouterLink, ReactiveFormsModule, CommonModule],
-  templateUrl: './sign-up.component.html',
-  styles: ``
+  templateUrl: './crearEmpresa.component.html',
+  styles: `
+    :host {
+      display: block;
+    }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SignUpComponent {
+export class CrearEmpresaComponent { 
   private fb=inject(FormBuilder);
-  registerUsuario!: FormGroup;
-  esUsuario: boolean = true; 
+  registerEmpresa!: FormGroup;
 
   constructor(){
-    this.registerUsuario=this.fb.group({
+    this.registerEmpresa=this.fb.group({
       nombre: ['',  [Validators.required, Validators.minLength(5)]],
-      apellidos:['', [Validators.required, Validators.minLength(5)]],
-      username: ['', [Validators.required, Validators.minLength(5), forbiddenName()]],
-      fechaNacimiento: ['', [Validators.required]],
+      username:['', [Validators.required, Validators.minLength(5), forbiddenName()]],
       email: ['',[Validators.required, Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')]],
+      direccion:['',[Validators.required, Validators.minLength(15)]],
+      fechaNacimiento: ['', [Validators.required]],
+      telefono:['',[Validators.required, Validators.pattern('^[0-9+]{10,15}$')]],
+      horario:['', [Validators.required, Validators.minLength(5)]],
+      latitud:['', [Validators.required, Validators.pattern('^-?([1-8]?[0-9]|90)\\.\\d+$')]],
+      longitud:['', [Validators.required, Validators.pattern('^-?((1[0-7][0-9])|([1-9]?[0-9]))\\.\\d+$')]],
       password: ['', [Validators.required, Validators.minLength(8)]]
     });
-
-  }
-
-  toggleForm() {
-    this.esUsuario = !this.esUsuario;
   }
 
   validarEntradaTelefono(event: KeyboardEvent) {
@@ -39,18 +42,19 @@ export class SignUpComponent {
     }
   }
   
-  register(){
-    if(this.registerUsuario.invalid){
-      this.registerUsuario.markAllAsTouched();
+  
+  registroEmpresa(){
+    if(this.registerEmpresa.invalid){
+      this.registerEmpresa.markAllAsTouched();
       return;
     }
-    console.log('Registrando...', this.registerUsuario.value);
+    console.log('Registrando...', this.registerEmpresa.value);
   }
 
 
 
-  obtenerMensajesError(controlName: string) {
-    const control = this.registerUsuario.get(controlName);
+  obtenerMensajesErrorEmpresa(controlName: string) {
+    const control = this.registerEmpresa.get(controlName);
     const mensajes: any[] = [];
     if (control?.errors && control?.touched) {
       Object.keys(control.errors).forEach(keyError => {
@@ -73,10 +77,11 @@ export class SignUpComponent {
           case 'forbiddenName':
             mensajes.push('Ese usuario no esta disponible');
             break;
-          
         }
       });
     }
     return mensajes;
   }
+
 }
+

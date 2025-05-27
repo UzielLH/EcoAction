@@ -1,22 +1,27 @@
-import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { forbiddenName } from '../../validators/forbiddenName';
-import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-sign-up',
+  selector: 'app-crear-admin',
   imports: [RouterLink, ReactiveFormsModule, CommonModule],
-  templateUrl: './sign-up.component.html',
-  styles: ``
+  templateUrl: './crearAdmin.component.html',
+  styles: `
+    :host {
+      display: block;
+    }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SignUpComponent {
+export class CrearAdminComponent {
   private fb=inject(FormBuilder);
-  registerUsuario!: FormGroup;
+  registerAdmin!: FormGroup;
   esUsuario: boolean = true; 
 
   constructor(){
-    this.registerUsuario=this.fb.group({
+    this.registerAdmin=this.fb.group({
       nombre: ['',  [Validators.required, Validators.minLength(5)]],
       apellidos:['', [Validators.required, Validators.minLength(5)]],
       username: ['', [Validators.required, Validators.minLength(5), forbiddenName()]],
@@ -40,17 +45,17 @@ export class SignUpComponent {
   }
   
   register(){
-    if(this.registerUsuario.invalid){
-      this.registerUsuario.markAllAsTouched();
+    if(this.registerAdmin.invalid){
+      this.registerAdmin.markAllAsTouched();
       return;
     }
-    console.log('Registrando...', this.registerUsuario.value);
+    console.log('Registrando...', this.registerAdmin.value);
   }
 
 
 
   obtenerMensajesError(controlName: string) {
-    const control = this.registerUsuario.get(controlName);
+    const control = this.registerAdmin.get(controlName);
     const mensajes: any[] = [];
     if (control?.errors && control?.touched) {
       Object.keys(control.errors).forEach(keyError => {
@@ -80,3 +85,4 @@ export class SignUpComponent {
     return mensajes;
   }
 }
+
