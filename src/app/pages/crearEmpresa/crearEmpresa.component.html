@@ -22,11 +22,6 @@
         <p class="text-sm text-red-500 p-1 kanit-extralight">
           {{obtenerMensajesErrorEmpresa('email')}}
         </p>
-        <label class="block text-gray-700 kanit-semibold mb-1">Dirección:</label>
-        <input type="email" formControlName="direccion" placeholder="Ingresa la dirección de la empresa" class="w-full p-3 border rounded-lg mb-4 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
-        <p class="text-sm text-red-500 p-1 kanit-extralight">
-          {{obtenerMensajesErrorEmpresa('direccion')}}
-        </p>
         <label class="block text-gray-700 kanit-semibold mb-1">Teléfono:</label>
         <input 
           type="text" 
@@ -61,16 +56,32 @@
         <p class="text-sm text-red-500 p-1 kanit-extralight">
           {{obtenerMensajesErrorEmpresa('file')}}
         </p>
-        <label class="block text-gray-700 kanit-semibold mb-1">Latitud:</label>
-        <input type="number" formControlName="latitud" placeholder="Ingresa latitud de la ubicación" class="w-full p-3 border rounded-lg mb-4 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
-        <p class="text-sm text-red-500 p-1 kanit-extralight">
-          {{obtenerMensajesErrorEmpresa('latitud')}}
-        </p>
-        <label class="block text-gray-700 kanit-semibold mb-1">Longitud:</label>
-        <input type="number" formControlName="longitud" placeholder="Ingresa longitud de la ubicación" class="w-full p-3 border rounded-lg mb-4 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
-        <p class="text-sm text-red-500 p-1 kanit-extralight">
-          {{obtenerMensajesErrorEmpresa('longitud')}}
-        </p>
+        <!-- ...existing code... -->
+<label class="block text-gray-700 kanit-semibold mb-1">Dirección:</label>
+<div class="flex gap-2">
+  <input 
+    type="text" 
+    formControlName="direccion" 
+    placeholder="Ingresa la dirección de la empresa" 
+    class="w-full p-3 border rounded-lg mb-4 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
+  <button 
+    type="button"
+    (click)="buscarDireccion()"
+    class="p-3 h-12 bg-lime-500 text-white rounded-lg hover:bg-lime-600">
+    <i class="fas fa-search"></i>
+  </button>
+</div>
+
+<!-- Mapa -->
+<div class="w-full h-64 mb-4">
+  <div id="mapa" class="w-full h-full rounded-lg"></div>
+</div>
+
+<!-- Campos ocultos para lat/lng -->
+<input type="hidden" formControlName="latitud">
+<input type="hidden" formControlName="longitud">
+
+<!-- ...existing code... -->
         <label class="block text-gray-700 kanit-semibold mb-1">Contraseña</label>
         <input type="password" formControlName="password" placeholder="Contraseña" class="w-full p-3 border rounded-lg mb-6 kanit-extralight focus:outline-none focus:ring-2 focus:ring-green-400">
         <p class="text-sm text-red-500 p-1 kanit-extralight">
