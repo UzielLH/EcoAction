@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { firstValueFrom } from 'rxjs';
 import Swal from 'sweetalert2';
 import { PasswordEmpService } from '../../services/PasswordEmp.service';
+import { NotificacionService } from '../../services/notificacion.service';
 
 @Component({
   selector: 'app-login',
@@ -16,6 +17,7 @@ export class LoginComponent {
   private fb=inject(FormBuilder);
   loginForm!: FormGroup;
   private authService = inject(AuthService); // Inyectar el servicio
+  private notificacionServive = inject(NotificacionService); // Inyectar el servicio de notificaciones
   private passwordService = inject(PasswordEmpService); // inyecta el servicio
 
   private router = inject(Router);
@@ -158,6 +160,51 @@ async register() {
           }
         }
       }
+
+  if (rol === 'user-realm-rol') {
+    const userUuid = localStorage.getItem('userUuid');
+    if (userUuid) {
+      this.notificacionServive.getNotificacionesByUserUuid(userUuid)
+        .subscribe({
+          next: (notificacion) => {
+            console.log('Nueva notificación recibida:', notificacion);
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'info',
+              title: notificacion.titulo,
+              text: notificacion.mensaje,
+              showConfirmButton: false,
+              timer: 5000,
+              customClass: {
+                container: 'mt-34', // margin-top: 6rem (96px)
+                popup: 'bg-white bg-opacity-95 rounded-lg shadow-lg p-4 max-w-sm',
+                title: 'text-lg font-semibold text-gray-800',
+                htmlContainer: 'text-sm text-gray-600'
+              },
+              showClass: {
+                popup: 'animate__animated animate__fadeInDown'
+              },
+              hideClass: {
+                popup: 'animate__animated animate__fadeOutUp'
+              }
+            });
+          },
+          error: (error) => {
+            console.error('Error en la conexión SSE:', error);
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'error',
+              title: 'Error de conexión',
+              text: 'Se perdió la conexión con el servidor de notificaciones',
+              showConfirmButton: false,
+              timer: 3000
+            });
+          }
+        });
+    }
+  }
 
       // Mostrar mensaje de éxito y redirigir
       Swal.fire({
