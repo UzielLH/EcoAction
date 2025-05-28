@@ -28,8 +28,8 @@
       <p class="kanit-light">Aún no has realizado ninguna transacción en EcoAction</p>
     </div>
 
-    <!-- Tarjetas de transacciones -->
-    <div class="transaction-card" *ngFor="let tx of transacciones" 
+    <!-- Tarjetas de transacciones (cambiando a transaccionesFiltradas) -->
+    <div class="transaction-card" *ngFor="let tx of transaccionesFiltradas" 
          [ngClass]="getColorForTransactionType(tx.tipo)"
          (click)="mostrarDetalles(tx)">
       <div class="transaction-icon">
@@ -51,8 +51,42 @@
     </div>
   </div>
 
+  <!-- Añadir controles de paginación -->
+  <div class="pagination-container" *ngIf="transacciones.length > 0">
+    <div class="pagination">
+      <button 
+        class="pagination-button" 
+        [disabled]="paginaActual === 1"
+        (click)="paginaAnterior()">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      
+      <button 
+        class="pagination-button" 
+        *ngFor="let pagina of obtenerNumerosPagina()"
+        [class.active]="pagina === paginaActual"
+        (click)="irAPagina(pagina)">
+        {{ pagina }}
+      </button>
+      
+      <button 
+        class="pagination-button" 
+        [disabled]="paginaActual === totalPaginas"
+        (click)="paginaSiguiente()">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+    
+    <p class="pagination-info kanit-light">
+      Mostrando {{ (paginaActual - 1) * elementosPorPagina + 1 }} - 
+      {{ paginaActual === totalPaginas ? transacciones.length : paginaActual * elementosPorPagina }}
+      de {{ transacciones.length }} transacciones
+    </p>
+  </div>
+
+  <!-- Actualizar el footer -->
   <div class="footer" *ngIf="transacciones.length > 0">
-    <p class="kanit-light">Total de transacciones: {{ transacciones.length }}</p>
+    <p class="kanit-light">Página {{ paginaActual }} de {{ totalPaginas }}</p>
   </div>
   
   <!-- Modal para detalles de transacción -->
@@ -658,4 +692,65 @@
       max-height: calc(80vh - 130px);
     }
   }
+  .pagination-container {
+  margin: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pagination {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.pagination-button {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  background-color: white;
+  color: #616161;
+  font-family: 'Kanit', sans-serif;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-button:hover:not(:disabled):not(.active) {
+  background-color: #f5f5f5;
+}
+
+.pagination-button.active {
+  background-color: #2e7d32;
+  color: white;
+  border-color: #2e7d32;
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  color: #757575;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .pagination-info {
+    text-align: center;
+  }
+}
 </style>

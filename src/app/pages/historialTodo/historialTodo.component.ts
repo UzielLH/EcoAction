@@ -29,14 +29,19 @@ export class HistorialTodoComponent implements OnInit {
   
   // Propiedades para almacenar transacciones
   transacciones: Transaccion[] = [];
+  transaccionesFiltradas: Transaccion[] = []; // Transacciones para la página actual
   loading = true;
   error: string | null = null;
   activeTab = 'todas'; // 'todas', 'donaciones', 'recargas', 'transferencias'
   
+  // Propiedades de paginación
+  paginaActual = 1;
+  elementosPorPagina = 10;
+  totalPaginas = 1;
+  
   // Estadísticas
   totalTransacciones = 0;
   montoTotal = 0;
-  
   
   // Nueva propiedad para la transacción seleccionada
   transaccionSeleccionada: Transaccion | null = null;
@@ -53,6 +58,7 @@ export class HistorialTodoComponent implements OnInit {
     this.activeTab = tipo;
     this.loading = true;
     this.error = null;
+    this.paginaActual = 1; // Reiniciar a la primera página cuando cambia el tipo
     
     let request;
     
@@ -73,6 +79,7 @@ export class HistorialTodoComponent implements OnInit {
       next: (data) => {
         this.transacciones = data;
         this.calcularEstadisticas();
+        this.aplicarPaginacion();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -88,6 +95,47 @@ export class HistorialTodoComponent implements OnInit {
   calcularEstadisticas() {
     this.totalTransacciones = this.transacciones.length;
     this.montoTotal = this.transacciones.reduce((total, tx) => total + tx.monto, 0);
+    this.totalPaginas = Math.ceil(this.totalTransacciones / this.elementosPorPagina);
+  }
+  
+  // Método para aplicar la paginación
+  aplicarPaginacion() {
+    const inicio = (this.paginaActual - 1) * this.elementosPorPagina;
+    const fin = inicio + this.elementosPorPagina;
+    this.transaccionesFiltradas = this.transacciones.slice(inicio, fin);
+  }
+  
+  // Métodos para navegar entre páginas
+  irAPagina(pagina: number) {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+      this.aplicarPaginacion();
+      this.cdr.detectChanges();
+    }
+  }
+  
+  paginaAnterior() {
+    this.irAPagina(this.paginaActual - 1);
+  }
+  
+  paginaSiguiente() {
+    this.irAPagina(this.paginaActual + 1);
+  }
+  
+  // Genera un array con los números de página para mostrar
+  obtenerNumerosPagina(): number[] {
+    const paginasMostradas = 5; // Número de páginas a mostrar en la navegación
+    const mitad = Math.floor(paginasMostradas / 2);
+    
+    let inicio = Math.max(this.paginaActual - mitad, 1);
+    let fin = inicio + paginasMostradas - 1;
+    
+    if (fin > this.totalPaginas) {
+      fin = this.totalPaginas;
+      inicio = Math.max(fin - paginasMostradas + 1, 1);
+    }
+    
+    return Array.from({length: (fin - inicio + 1)}, (_, i) => inicio + i);
   }
 
   // Métodos para formatear datos
@@ -134,7 +182,7 @@ export class HistorialTodoComponent implements OnInit {
     }
   }
   
-  // Nuevos métodos para manejar la selección de transacciones
+  // Métodos para manejar la selección de transacciones
   mostrarDetalles(transaction: Transaccion) {
     this.transaccionSeleccionada = transaction;
     this.cdr.detectChanges();
