@@ -13,6 +13,10 @@ export class UsuarioPerfilService {
 
   constructor() { }
   
+  getUuidByUsername(username: string): Observable<any> {
+    return this._http.get(`${APIURL}usuarios/api/usuarios/usuario/find-uuid-by-username?username=${username}`);
+  }
+  
   getUsuarioByUuid(uuidKeycloak: string): Observable<any> {
     return this._http.get(`${APIURL}usuarios/api/usuarios/usuario/find-by-uuid-keycloak?uuidKeycloak=${uuidKeycloak}`);
   }

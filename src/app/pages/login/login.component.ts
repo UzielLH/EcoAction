@@ -170,23 +170,24 @@ async register() {
             console.log('Nueva notificación recibida:', notificacion);
             Swal.fire({
               toast: true,
-              position: 'top-end',
+              position: window.innerWidth < 768 ? 'center' : 'top-end',
               icon: 'info',
               title: notificacion.titulo,
               text: notificacion.mensaje,
               showConfirmButton: false,
               timer: 5000,
+              width: window.innerWidth < 768 ? '90%' : 'auto',
               customClass: {
-                container: 'mt-34', // margin-top: 6rem (96px)
-                popup: 'bg-white bg-opacity-95 rounded-lg shadow-lg p-4 max-w-sm',
+                container: 'notification-container',
+                popup: 'bg-white bg-opacity-95 rounded-lg shadow-lg p-4 max-w-sm mt-20',
                 title: 'text-lg font-semibold text-gray-800',
                 htmlContainer: 'text-sm text-gray-600'
               },
               showClass: {
-                popup: 'animate__animated animate__fadeInDown'
+                popup: 'animate__animated animate__fadeIn'
               },
               hideClass: {
-                popup: 'animate__animated animate__fadeOutUp'
+                popup: 'animate__animated animate__fadeOut'
               }
             });
           },
@@ -194,26 +195,34 @@ async register() {
             console.error('Error en la conexión SSE:', error);
             Swal.fire({
               toast: true,
-              position: 'top-end',
+              position: window.innerWidth < 768 ? 'center' : 'top-end',
               icon: 'error',
               title: 'Error de conexión',
               text: 'Se perdió la conexión con el servidor de notificaciones',
               showConfirmButton: false,
-              timer: 3000
+              timer: 3000,
+              width: window.innerWidth < 768 ? '90%' : 'auto',
+              customClass: {
+                popup: 'bg-white bg-opacity-95 rounded-lg shadow-lg p-4 max-w-sm mt-20'
+              }
             });
           }
         });
     }
   }
 
-      // Mostrar mensaje de éxito y redirigir
-      Swal.fire({
-        icon: 'success',
-        title: '¡Login exitoso!',
-        text: 'Bienvenido, ' + username,
-        timer: 2000,
-        showConfirmButton: false
-      });
+  // Mostrar mensaje de éxito y redirigir después de las notificaciones
+  Swal.fire({
+      icon: 'success',
+      title: '¡Login exitoso!',
+      text: 'Bienvenido, ' + username,
+      timer: 2000,
+      showConfirmButton: false,
+      position: window.innerWidth < 768 ? 'center' : 'center',
+      width: window.innerWidth < 768 ? '90%' : 'auto'
+  });
+
+this.router.navigate(['/home']);
 
       this.router.navigate(['/home']);
 
