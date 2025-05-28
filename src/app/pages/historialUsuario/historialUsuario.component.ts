@@ -26,9 +26,16 @@ interface Transaccion {
 export class HistorialUsuarioComponent implements OnInit { 
   private transaccionService = inject(TransaccionService);
   private cdr = inject(ChangeDetectorRef); // Inyectar ChangeDetectorRef
+  
   transacciones: Transaccion[] = [];
+  transaccionesFiltradas: Transaccion[] = []; // Transacciones para la página actual
   loading = true;
   error: string | null = null;
+  
+  // Propiedades de paginación
+  paginaActual = 1;
+  elementosPorPagina = 10;
+  totalPaginas = 1;
   
   // Nueva propiedad para almacenar la transacción seleccionada
   transaccionSeleccionada: Transaccion | null = null;
@@ -45,6 +52,8 @@ export class HistorialUsuarioComponent implements OnInit {
       next: (data) => {
         console.log('Transacciones recibidas:', data);
         this.transacciones = data;
+        this.calcularTotalPaginas();
+        this.aplicarPaginacion();
         this.loading = false;
         this.cdr.detectChanges(); // Forzar detección de cambios
       },
@@ -55,6 +64,49 @@ export class HistorialUsuarioComponent implements OnInit {
         this.cdr.detectChanges(); // Forzar detección de cambios
       }
     });
+  }
+  
+  // Métodos para paginación
+  calcularTotalPaginas() {
+    this.totalPaginas = Math.ceil(this.transacciones.length / this.elementosPorPagina);
+  }
+  
+  aplicarPaginacion() {
+    const inicio = (this.paginaActual - 1) * this.elementosPorPagina;
+    const fin = inicio + this.elementosPorPagina;
+    this.transaccionesFiltradas = this.transacciones.slice(inicio, fin);
+  }
+  
+  irAPagina(pagina: number) {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+      this.aplicarPaginacion();
+      this.cdr.detectChanges();
+    }
+  }
+  
+  paginaAnterior() {
+    this.irAPagina(this.paginaActual - 1);
+  }
+  
+  paginaSiguiente() {
+    this.irAPagina(this.paginaActual + 1);
+  }
+  
+  // Genera un array con los números de página para mostrar
+  obtenerNumerosPagina(): number[] {
+    const paginasMostradas = 5; // Número de páginas a mostrar en la navegación
+    const mitad = Math.floor(paginasMostradas / 2);
+    
+    let inicio = Math.max(this.paginaActual - mitad, 1);
+    let fin = inicio + paginasMostradas - 1;
+    
+    if (fin > this.totalPaginas) {
+      fin = this.totalPaginas;
+      inicio = Math.max(fin - paginasMostradas + 1, 1);
+    }
+    
+    return Array.from({length: (fin - inicio + 1)}, (_, i) => inicio + i);
   }
 
   // Métodos de ayuda para la presentación
