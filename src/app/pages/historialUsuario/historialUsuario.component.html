@@ -30,7 +30,8 @@
 
     <!-- Tarjetas de transacciones -->
     <div class="transaction-card" *ngFor="let tx of transacciones" 
-         [ngClass]="getColorForTransactionType(tx.tipo)">
+         [ngClass]="getColorForTransactionType(tx.tipo)"
+         (click)="mostrarDetalles(tx)">
       <div class="transaction-icon">
         <i class="fas" [ngClass]="getIconForTransactionType(tx.tipo)"></i>
       </div>
@@ -53,9 +54,152 @@
   <div class="footer" *ngIf="transacciones.length > 0">
     <p class="kanit-light">Total de transacciones: {{ transacciones.length }}</p>
   </div>
+  
+  <!-- Modal para detalles de transacción -->
+  <div class="transaction-detail-modal" *ngIf="transaccionSeleccionada">
+    <div class="modal-overlay" (click)="cerrarDetalles()"></div>
+    <div class="modal-container" [ngClass]="getColorForTransactionType(transaccionSeleccionada.tipo)">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas" [ngClass]="getIconForTransactionType(transaccionSeleccionada.tipo)"></i>
+          <h2 class="kanit-bold">Detalles de {{ transaccionSeleccionada.tipo | lowercase }}</h2>
+        </div>
+        <button class="modal-close-btn" (click)="cerrarDetalles()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="detail-section">
+          <h3 class="section-title kanit-medium">Información General</h3>
+          
+          <div class="detail-row">
+            <div class="detail-label kanit-medium">ID:</div>
+            <div class="detail-value kanit-regular">{{ transaccionSeleccionada.id }}</div>
+          </div>
+          
+          <div class="detail-row">
+            <div class="detail-label kanit-medium">Tipo:</div>
+            <div class="detail-value kanit-regular">
+              <div class="type-badge" [ngClass]="getColorForTransactionType(transaccionSeleccionada.tipo)">
+                {{ transaccionSeleccionada.tipo }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="detail-row">
+            <div class="detail-label kanit-medium">Fecha:</div>
+            <div class="detail-value kanit-regular">{{ transaccionSeleccionada.fecha | date:'dd/MM/yyyy HH:mm:ss' }}</div>
+          </div>
+          
+          <div class="detail-row">
+            <div class="detail-label kanit-medium">Monto:</div>
+            <div class="detail-value kanit-bold" [class.positive]="transaccionSeleccionada.tipo === 'RECARGA'" 
+                 [class.negative]="transaccionSeleccionada.tipo !== 'RECARGA'">
+              {{ transaccionSeleccionada.tipo === 'RECARGA' ? '+' : '-' }} ${{ transaccionSeleccionada.monto.toFixed(2) }}
+            </div>
+          </div>
+          
+          <div class="detail-row">
+            <div class="detail-label kanit-medium">Usuario ID:</div>
+            <div class="detail-value kanit-regular">{{ transaccionSeleccionada.usuarioId }}</div>
+          </div>
+        </div>
+        
+        <!-- Datos específicos según el tipo de transacción -->
+        <div class="detail-section" *ngIf="transaccionSeleccionada.datosEspecificos">
+          <h3 class="section-title kanit-medium">Datos Específicos</h3>
+          
+          <!-- Para RECARGA -->
+          <ng-container *ngIf="transaccionSeleccionada.tipo === 'RECARGA'">
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.numeroTarjeta">
+              <div class="detail-label kanit-medium">Tarjeta:</div>
+              <div class="detail-value kanit-regular">{{ formatCardNumber(transaccionSeleccionada.datosEspecificos.numeroTarjeta) }}</div>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.banco">
+              <div class="detail-label kanit-medium">Banco:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos.banco }}</div>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.titular">
+              <div class="detail-label kanit-medium">Titular:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos.titular }}</div>
+            </div>
+          </ng-container>
+          
+          <!-- Para DONACION -->
+          <ng-container *ngIf="transaccionSeleccionada.tipo === 'DONACION'">
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.metaId">
+              <div class="detail-label kanit-medium">Meta ID:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos.metaId }}</div>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.nombreMeta">
+              <div class="detail-label kanit-medium">Nombre de meta:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos.nombreMeta }}</div>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.mensaje">
+              <div class="detail-label kanit-medium">Mensaje:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos.mensaje }}</div>
+            </div>
+          </ng-container>
+          
+          <!-- Para TRANSFERENCIA -->
+          <ng-container *ngIf="transaccionSeleccionada.tipo === 'TRANSFERENCIA'">
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.empresaId">
+              <div class="detail-label kanit-medium">Empresa ID:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos.empresaId }}</div>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.nombreEmpresa">
+              <div class="detail-label kanit-medium">Nombre de empresa:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos.nombreEmpresa }}</div>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.concepto">
+              <div class="detail-label kanit-medium">Concepto:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos.concepto }}</div>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.referencia">
+              <div class="detail-label kanit-medium">Referencia:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos.referencia }}</div>
+            </div>
+          </ng-container>
+          
+          <!-- Campos genéricos adicionales -->
+          <ng-container *ngFor="let prop of transaccionSeleccionada.datosEspecificos | keyvalue">
+            <div class="detail-row" 
+                *ngIf="prop.key !== 'numeroTarjeta' && 
+                       prop.key !== 'banco' && 
+                       prop.key !== 'titular' && 
+                       prop.key !== 'metaId' && 
+                       prop.key !== 'nombreMeta' && 
+                       prop.key !== 'mensaje' && 
+                       prop.key !== 'empresaId' && 
+                       prop.key !== 'nombreEmpresa' && 
+                       prop.key !== 'concepto' && 
+                       prop.key !== 'referencia'">
+              <div class="detail-label kanit-medium">{{ keyToString(prop.key) | titlecase }}:</div>
+              <div class="detail-value kanit-regular">{{ prop.value }}</div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="close-button kanit-medium" (click)="cerrarDetalles()">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
+  /* Estilos existentes */
   .historial-container {
     max-width: 900px;
     margin: 0 auto;
@@ -290,31 +434,228 @@
     color: #757575;
     font-size: 0.9rem;
   }
-
-  /* Responsive */
+  
+  /* Estilos para el modal de detalles de transacción */
+  .transaction-detail-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+  }
+  
+  .modal-container {
+    position: relative;
+    background-color: white;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.3s ease-out;
+    overflow: hidden;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .modal-container.green {
+    border-top: 5px solid #2e7d32;
+  }
+  
+  .modal-container.purple {
+    border-top: 5px solid #7b1fa2;
+  }
+  
+  .modal-container.blue {
+    border-top: 5px solid #1565c0;
+  }
+  
+  .modal-container.gray {
+    border-top: 5px solid #757575;
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #eeeeee;
+  }
+  
+  .modal-title {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  
+  .modal-title i {
+    font-size: 1.5rem;
+  }
+  
+  .modal-title h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #212121;
+  }
+  
+  .modal-title h2::first-letter {
+    text-transform: uppercase;
+  }
+  
+  .modal-close-btn {
+    background: none;
+    border: none;
+    color: #9e9e9e;
+    font-size: 1.2rem;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  
+  .modal-close-btn:hover {
+    background-color: #f5f5f5;
+    color: #616161;
+  }
+  
+  .modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    max-height: calc(90vh - 150px);
+  }
+  
+  .detail-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .section-title {
+    font-size: 1.2rem;
+    color: #424242;
+    border-bottom: 1px solid #eeeeee;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .detail-row {
+    display: flex;
+    margin-bottom: 0.8rem;
+    align-items: flex-start;
+  }
+  
+  .detail-label {
+    flex: 0 0 35%;
+    color: #757575;
+  }
+  
+  .detail-value {
+    flex: 1;
+    color: #212121;
+  }
+  
+  .type-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    color: white;
+    font-size: 0.85rem;
+    text-transform: lowercase;
+  }
+  
+  .type-badge::first-letter {
+    text-transform: uppercase;
+  }
+  
+  .type-badge.green {
+    background-color: #2e7d32;
+  }
+  
+  .type-badge.purple {
+    background-color: #7b1fa2;
+  }
+  
+  .type-badge.blue {
+    background-color: #1565c0;
+  }
+  
+  .type-badge.gray {
+    background-color: #757575;
+  }
+  
+  .modal-footer {
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid #eeeeee;
+  }
+  
+  .close-button {
+    background-color: #e0e0e0;
+    color: #424242;
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 1.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .close-button:hover {
+    background-color: #bdbdbd;
+  }
+  
+  .positive {
+    color: #2e7d32;
+  }
+  
+  .negative {
+    color: #c62828;
+  }
+  
+  /* Estilos para hover en las tarjetas de transacciones */
+  .transaction-card {
+    cursor: pointer;
+  }
+  
+  /* Responsive para el modal */
   @media (max-width: 768px) {
-    .historial-container {
-      padding: 1rem;
+    .modal-container {
+      width: 95%;
+      max-height: 80vh;
     }
-
-    .transaction-card {
+    
+    .detail-row {
       flex-direction: column;
-      padding: 1.2rem;
     }
-
-    .transaction-icon {
-      margin-bottom: 1rem;
-      margin-right: 0;
+    
+    .detail-label {
+      margin-bottom: 0.3rem;
     }
-
-    .transaction-amount {
-      margin-top: 1rem;
-      margin-left: 0;
-      border-left: none;
-      border-top: 1px solid #eeeeee;
-      padding: 0.5rem 0 0;
-      width: 100%;
-      justify-content: flex-start;
+    
+    .modal-body {
+      max-height: calc(80vh - 130px);
     }
   }
 </style>

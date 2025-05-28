@@ -1,1 +1,915 @@
-<p>historialTodo works!</p>,
+<div class="admin-container">
+  <!-- Encabezado y navegación -->
+  <div class="admin-header">
+    <h1 class="kanit-bold">Panel Administrativo de Transacciones</h1>
+    <p class="subtitle kanit-light">Visualiza y gestiona todas las transacciones de la plataforma</p>
+  </div>
+  
+  <!-- Navegación de tipos -->
+  <div class="tabs-container">
+    <div class="tabs">
+      <button 
+        class="tab-button kanit-medium" 
+        [class.active]="activeTab === 'todas'"
+        (click)="cambiarTipo('todas')">
+        <i class="fas fa-list"></i> Todas
+      </button>
+      <button 
+        class="tab-button kanit-medium" 
+        [class.active]="activeTab === 'donaciones'"
+        (click)="cambiarTipo('donaciones')">
+        <i class="fas fa-hand-holding-heart"></i> Donaciones
+      </button>
+      <button 
+        class="tab-button kanit-medium" 
+        [class.active]="activeTab === 'recargas'"
+        (click)="cambiarTipo('recargas')">
+        <i class="fas fa-credit-card"></i> Recargas
+      </button>
+    </div>
+  </div>
+  
+  <!-- Tarjetas de estadísticas -->
+  <div class="stats-container" *ngIf="!loading && !error">
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-exchange-alt"></i>
+      </div>
+      <div class="stat-details">
+        <h3 class="kanit-light">Total Transacciones</h3>
+        <p class="stat-value kanit-bold">{{ totalTransacciones }}</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-dollar-sign"></i>
+      </div>
+      <div class="stat-details">
+        <h3 class="kanit-light">Monto Total</h3>
+        <p class="stat-value kanit-bold">${{ montoTotal.toFixed(2) }}</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas" [ngClass]="activeTab === 'donaciones' ? 'fa-hand-holding-heart' : activeTab === 'recargas' ? 'fa-credit-card' : 'fa-list'"></i>
+      </div>
+      <div class="stat-details">
+        <h3 class="kanit-light">Tipo Actual</h3>
+        <p class="stat-value kanit-bold">{{ activeTab | titlecase }}</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Estado de carga -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p class="kanit-regular">Cargando transacciones...</p>
+  </div>
+  
+  <!-- Mensaje de error -->
+  <div class="error-message" *ngIf="error">
+    <i class="fas fa-exclamation-circle"></i>
+    <p class="kanit-medium">{{ error }}</p>
+    <button class="retry-button kanit-medium" (click)="cambiarTipo(activeTab)">
+      Reintentar
+    </button>
+  </div>
+  
+  <!-- Lista de transacciones -->
+  <div class="transactions-section" *ngIf="!loading && !error">
+    <!-- Estado vacío -->
+    <div class="empty-state" *ngIf="transacciones.length === 0">
+      <i class="fas fa-database"></i>
+      <h2 class="kanit-semibold">No hay transacciones disponibles</h2>
+      <p class="kanit-light">No se encontraron transacciones del tipo seleccionado</p>
+    </div>
+
+    <div class="admin-table-container" *ngIf="transacciones.length > 0">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th class="kanit-medium">ID</th>
+            <th class="kanit-medium">Usuario</th>
+            <th class="kanit-medium">Fecha</th>
+            <th class="kanit-medium">Tipo</th>
+            <th class="kanit-medium">Descripción</th>
+            <th class="kanit-medium">Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let tx of transacciones" 
+              [ngClass]="getColorForTransactionType(tx.tipo)"
+              (click)="mostrarDetalles(tx)"
+              [class.clickable]="true">
+            <td class="kanit-regular id-cell">{{ tx.id }}</td>
+            <td class="kanit-regular user-cell">{{ truncateUserId(tx.usuarioId) }}</td>
+            <td class="kanit-regular date-cell">{{ tx.fecha | date:'dd/MM/yyyy' }}</td>
+            <td class="kanit-regular type-cell">
+              <div class="type-badge" [ngClass]="getColorForTransactionType(tx.tipo)">
+                <i class="fas" [ngClass]="getIconForTransactionType(tx.tipo)"></i>
+                {{ tx.tipo }}
+              </div>
+            </td>
+            <td class="kanit-regular desc-cell">{{ getTransactionDescription(tx) }}</td>
+            <td class="kanit-semibold amount-cell">${{ tx.monto.toFixed(2) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Vista alternativa de tarjetas para móviles -->
+    <div class="transaction-cards-mobile">
+      <div class="transaction-card-mobile" 
+           *ngFor="let tx of transacciones" 
+           [ngClass]="getColorForTransactionType(tx.tipo)"
+           (click)="mostrarDetalles(tx)">
+        <div class="card-header">
+          <div class="transaction-icon">
+            <i class="fas" [ngClass]="getIconForTransactionType(tx.tipo)"></i>
+          </div>
+          <div>
+            <h3 class="kanit-medium">{{ tx.tipo }}</h3>
+            <p class="kanit-light">{{ tx.fecha | date:'dd/MM/yyyy' }}</p>
+          </div>
+          <div class="transaction-amount">
+            <span class="kanit-semibold">${{ tx.monto.toFixed(2) }}</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-row">
+            <span class="label kanit-medium">ID:</span>
+            <span class="value kanit-regular">{{ tx.id }}</span>
+          </div>
+          <div class="card-row">
+            <span class="label kanit-medium">Usuario:</span>
+            <span class="value kanit-regular">{{ truncateUserId(tx.usuarioId) }}</span>
+          </div>
+          <div class="card-row">
+            <span class="label kanit-medium">Descripción:</span>
+            <span class="value kanit-regular">{{ getTransactionDescription(tx) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal para detalles de transacción -->
+  <div class="transaction-detail-modal" *ngIf="transaccionSeleccionada">
+    <div class="modal-overlay" (click)="cerrarDetalles()"></div>
+    <div class="modal-container" [ngClass]="getColorForTransactionType(transaccionSeleccionada.tipo)">
+      <div class="modal-header">
+        <h2 class="kanit-bold">
+          <i class="fas" [ngClass]="getIconForTransactionType(transaccionSeleccionada.tipo)"></i>
+          Detalles de Transacción
+        </h2>
+        <button class="close-button" (click)="cerrarDetalles()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="detail-section">
+          <div class="detail-header kanit-medium">Información General</div>
+          
+          <div class="detail-row">
+            <div class="detail-label kanit-medium">ID de Transacción:</div>
+            <div class="detail-value kanit-regular">{{ transaccionSeleccionada.id }}</div>
+          </div>
+          
+          <div class="detail-row">
+            <div class="detail-label kanit-medium">Tipo:</div>
+            <div class="detail-value kanit-regular">
+              <div class="type-badge" [ngClass]="getColorForTransactionType(transaccionSeleccionada.tipo)">
+                <i class="fas" [ngClass]="getIconForTransactionType(transaccionSeleccionada.tipo)"></i>
+                {{ transaccionSeleccionada.tipo }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="detail-row">
+            <div class="detail-label kanit-medium">Monto:</div>
+            <div class="detail-value kanit-bold">${{ transaccionSeleccionada.monto.toFixed(2) }}</div>
+          </div>
+          
+          <div class="detail-row">
+            <div class="detail-label kanit-medium">Fecha:</div>
+            <div class="detail-value kanit-regular">{{ transaccionSeleccionada.fecha | date:'dd/MM/yyyy HH:mm:ss' }}</div>
+          </div>
+          
+          <div class="detail-row">
+            <div class="detail-label kanit-medium">ID de Usuario:</div>
+            <div class="detail-value kanit-regular">{{ transaccionSeleccionada.usuarioId }}</div>
+          </div>
+        </div>
+        
+        <!-- Datos específicos según el tipo de transacción -->
+        <div class="detail-section">
+          <div class="detail-header kanit-medium">Datos Específicos</div>
+          
+          <!-- Datos específicos para Recarga -->
+          <ng-container *ngIf="transaccionSeleccionada.tipo === 'RECARGA'">
+            <div class="detail-row">
+              <div class="detail-label kanit-medium">Número de Tarjeta:</div>
+              <div class="detail-value kanit-regular">{{ formatCardNumber(transaccionSeleccionada.datosEspecificos?.numeroTarjeta) }}</div>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.banco">
+              <div class="detail-label kanit-medium">Banco:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos?.banco }}</div>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.titular">
+              <div class="detail-label kanit-medium">Titular:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos?.titular }}</div>
+            </div>
+          </ng-container>
+          
+          <!-- Datos específicos para Donación -->
+          <ng-container *ngIf="transaccionSeleccionada.tipo === 'DONACION'">
+            <div class="detail-row">
+              <div class="detail-label kanit-medium">ID de Meta:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos?.metaId }}</div>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.nombreMeta">
+              <div class="detail-label kanit-medium">Nombre de Meta:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos?.nombreMeta }}</div>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.mensaje">
+              <div class="detail-label kanit-medium">Mensaje:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos?.mensaje }}</div>
+            </div>
+          </ng-container>
+          
+          <!-- Datos específicos para Transferencia -->
+          <ng-container *ngIf="transaccionSeleccionada.tipo === 'TRANSFERENCIA'">
+            <div class="detail-row">
+              <div class="detail-label kanit-medium">ID de Empresa:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos?.empresaId }}</div>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.nombreEmpresa">
+              <div class="detail-label kanit-medium">Nombre de Empresa:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos?.nombreEmpresa }}</div>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.concepto">
+              <div class="detail-label kanit-medium">Concepto:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos?.concepto }}</div>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaccionSeleccionada.datosEspecificos?.referencia">
+              <div class="detail-label kanit-medium">Referencia:</div>
+              <div class="detail-value kanit-regular">{{ transaccionSeleccionada.datosEspecificos?.referencia }}</div>
+            </div>
+          </ng-container>
+          
+          <!-- Si hay otros campos en datosEspecificos, mostrarlos de manera genérica -->
+          <ng-container *ngFor="let key of transaccionSeleccionada.datosEspecificos | keyvalue">
+            <div class="detail-row" *ngIf="key.key !== 'numeroTarjeta' && key.key !== 'banco' && key.key !== 'titular' && 
+                                           key.key !== 'metaId' && key.key !== 'nombreMeta' && key.key !== 'mensaje' && 
+                                           key.key !== 'empresaId' && key.key !== 'nombreEmpresa' && key.key !== 'concepto' && 
+                                           key.key !== 'referencia'">
+<div class="detail-label kanit-medium">{{ keyToString(key.key) | titlecase }}:</div>              <div class="detail-value kanit-regular">{{ key.value }}</div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="modal-button kanit-medium" (click)="cerrarDetalles()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="admin-footer" *ngIf="transacciones.length > 0">
+    <p class="kanit-light">Mostrando {{ transacciones.length }} transacciones</p>
+  </div>
+</div>
+
+<style>
+  /* Estilos existentes */
+  .admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: "Kanit", sans-serif;
+  }
+
+  .admin-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .admin-header h1 {
+    color: #2e7d32;
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: #757575;
+    font-size: 1.1rem;
+  }
+
+  /* Tabs de navegación */
+  .tabs-container {
+    margin-bottom: 2rem;
+  }
+
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 1px;
+  }
+
+  .tab-button {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    background-color: #f5f5f5;
+    color: #616161;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: -1px;
+  }
+
+  .tab-button.active {
+    background-color: #2e7d32;
+    color: white;
+    border-bottom: 4px solid #1b5e20;
+  }
+
+  .tab-button:hover:not(.active) {
+    background-color: #e0e0e0;
+  }
+
+  .tab-button i {
+    font-size: 1rem;
+  }
+
+  /* Tarjetas de estadísticas */
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .stat-icon i {
+    font-size: 1.5rem;
+  }
+
+  .stat-details {
+    flex-grow: 1;
+  }
+
+  .stat-details h3 {
+    color: #757575;
+    font-size: 0.9rem;
+    margin: 0 0 0.5rem;
+  }
+
+  .stat-value {
+    color: #212121;
+    font-size: 1.5rem;
+    margin: 0;
+  }
+
+  /* Estados de carga y error */
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4rem 0;
+    color: #757575;
+  }
+
+  .spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top: 4px solid #2e7d32;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 1rem;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .error-message {
+    background-color: #ffebee;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    color: #c62828;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 1rem 0;
+  }
+
+  .error-message i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .retry-button {
+    background-color: #c62828;
+    color: white;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .retry-button:hover {
+    background-color: #b71c1c;
+  }
+
+  /* Estado vacío */
+  .empty-state {
+    padding: 4rem 2rem;
+    text-align: center;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    color: #757575;
+  }
+
+  .empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    color: #9e9e9e;
+  }
+
+  .empty-state h2 {
+    margin-bottom: 0.5rem;
+    color: #424242;
+  }
+
+  /* Tabla de transacciones */
+  .admin-table-container {
+    overflow-x: auto;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+  }
+
+  .admin-table th, 
+  .admin-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eeeeee;
+  }
+
+  .admin-table th {
+    background-color: #f9f9f9;
+    color: #616161;
+  }
+
+  .admin-table tbody tr {
+    transition: background-color 0.2s;
+  }
+
+  .admin-table tbody tr:hover {
+    background-color: #f5f5f5;
+  }
+
+  .admin-table tr.green {
+    border-left: 4px solid #2e7d32;
+  }
+
+  .admin-table tr.purple {
+    border-left: 4px solid #7b1fa2;
+  }
+
+  .admin-table tr.blue {
+    border-left: 4px solid #1565c0;
+  }
+
+  .admin-table tr.gray {
+    border-left: 4px solid #757575;
+  }
+
+  /* Celdas específicas */
+  .id-cell {
+    width: 60px;
+  }
+
+  .user-cell {
+    width: 100px;
+  }
+
+  .date-cell {
+    width: 100px;
+  }
+
+  .type-cell {
+    width: 140px;
+  }
+
+  .desc-cell {
+    min-width: 250px;
+  }
+
+  .amount-cell {
+    width: 120px;
+    text-align: right;
+  }
+
+  /* Insignia de tipo */
+  .type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: white;
+    gap: 0.5rem;
+  }
+
+  .type-badge.green {
+    background-color: #2e7d32;
+  }
+
+  .type-badge.purple {
+    background-color: #7b1fa2;
+  }
+
+  .type-badge.blue {
+    background-color: #1565c0;
+  }
+
+  .type-badge.gray {
+    background-color: #757575;
+  }
+
+  /* Vista de tarjetas para móvil */
+  .transaction-cards-mobile {
+    display: none;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .transaction-card-mobile {
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    border-left: 5px solid transparent;
+  }
+
+  .transaction-card-mobile.green {
+    border-left-color: #2e7d32;
+  }
+
+  .transaction-card-mobile.purple {
+    border-left-color: #7b1fa2;
+  }
+
+  .transaction-card-mobile.blue {
+    border-left-color: #1565c0;
+  }
+
+  .transaction-card-mobile.gray {
+    border-left-color: #757575;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #eeeeee;
+    gap: 1rem;
+  }
+
+  .card-header .transaction-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .green .card-header .transaction-icon {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  .purple .card-header .transaction-icon {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+  }
+
+  .blue .card-header .transaction-icon {
+    background-color: #e3f2fd;
+    color: #1565c0;
+  }
+
+  .gray .card-header .transaction-icon {
+    background-color: #f5f5f5;
+    color: #757575;
+  }
+
+  .card-header h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .card-header p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #9e9e9e;
+  }
+
+  .card-header .transaction-amount {
+    margin-left: auto;
+    font-size: 1.1rem;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .card-row {
+    display: flex;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-row .label {
+    min-width: 100px;
+    color: #757575;
+  }
+
+  .card-row .value {
+    flex-grow: 1;
+    color: #212121;
+  }
+
+  .admin-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #757575;
+    font-size: 0.9rem;
+  }
+
+  /* Responsive design */
+  @media (max-width: 992px) {
+    .admin-table-container {
+      display: none;
+    }
+
+    .transaction-cards-mobile {
+      display: flex;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .admin-container {
+      padding: 1rem;
+    }
+
+    .tabs {
+      justify-content: center;
+    }
+
+    .tab-button {
+      flex: 1;
+      text-align: center;
+      justify-content: center;
+    }
+
+    .stats-container {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+  }
+  
+  /* Agregar estilos para filas clickeables */
+  .clickable {
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .clickable:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .transaction-card-mobile {
+    cursor: pointer;
+  }
+  
+  /* Estilos para el modal de detalles */
+  .transaction-detail-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+  }
+  
+  .modal-container {
+    position: relative;
+    background-color: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modal-container.green {
+    border-top: 6px solid #2e7d32;
+  }
+  
+  .modal-container.purple {
+    border-top: 6px solid #7b1fa2;
+  }
+  
+  .modal-container.blue {
+    border-top: 6px solid #1565c0;
+  }
+  
+  .modal-container.gray {
+    border-top: 6px solid #757575;
+  }
+  
+  .modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #eeeeee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .modal-header h2 {
+    margin: 0;
+    color: #212121;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  
+  .modal-header .fas {
+    font-size: 1.3rem;
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    color: #757575;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  
+  .close-button:hover {
+    background-color: #f5f5f5;
+    color: #212121;
+  }
+  
+  .modal-body {
+    padding: 1.5rem;
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  
+  .detail-section {
+    margin-bottom: 2rem;
+  }
+  
+  .detail-header {
+    font-size: 1.2rem;
+    color: #424242;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eeeeee;
+  }
+  
+  .detail-row {
+    display: flex;
+    margin-bottom: 1rem;
+    align-items: center;
+  }
+  
+  .detail-label {
+    min-width: 180px;
+    color: #757575;
+  }
+  
+  .detail-value {
+    flex-grow: 1;
+    color: #212121;
+  }
+  
+  .modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #eeeeee;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .modal-button {
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 6px;
+    background-color: #2e7d32;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .modal-button:hover {
+    background-color: #1b5e20;
+  }
+  
+  /* Estilos responsivos para el modal */
+  @media (max-width: 768px) {
+    .modal-container {
+      width: 95%;
+      max-height: 80vh;
+    }
+    
+    .detail-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .detail-label {
+      min-width: auto;
+      margin-bottom: 0.3rem;
+    }
+  }
+</style>
