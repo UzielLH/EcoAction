@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import { PuntosService } from '../../services/Puntos.service';
+import { TransaccionService } from '../../services/Transaccion.service';
 
 @Component({
   selector: 'app-colocacion-puntos',
@@ -14,7 +15,7 @@ import { PuntosService } from '../../services/Puntos.service';
 export class ColocacionPuntosComponent implements OnInit {
   private fb = inject(FormBuilder);
   private puntosService = inject(PuntosService);
-  
+  private transaccionService = inject(TransaccionService);
   puntosForm!: FormGroup;
   isSubmitting = false;
   successMessage: string | null = null;

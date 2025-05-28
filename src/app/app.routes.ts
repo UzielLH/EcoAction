@@ -14,6 +14,8 @@ import { CrearEmpresaComponent } from './pages/crearEmpresa/crearEmpresa.compone
 import { CrearAdminComponent } from './pages/crearAdmin/crearAdmin.component';
 import { PerfilComponent } from './pages/perfil/perfil.component';
 import { authGuard } from './guards/auth.guard';
+import { HistorialUsuarioComponent } from './pages/historialUsuario/historialUsuario.component';
+import { HistorialTodoComponent } from './pages/historialTodo/historialTodo.component';
 
 export const routes: Routes = [
     {
@@ -70,6 +72,16 @@ export const routes: Routes = [
     {
         path:'perfil',
         component: PerfilComponent,
+        canActivate:[authGuard]
+    },
+    {
+        path:'historialUsuario',
+        component: HistorialUsuarioComponent,
+        canActivate:[authGuard]
+    },
+    {
+        path:'historialTodo',
+        component: HistorialTodoComponent,
         canActivate:[authGuard]
     },
     {
