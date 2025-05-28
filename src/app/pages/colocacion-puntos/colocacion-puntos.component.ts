@@ -3,7 +3,8 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import { PuntosService } from '../../services/Puntos.service';
-import { TransaccionService } from '../../services/Transaccion.service';
+import { UsuarioPerfilService } from '../../services/UsuarioPerfil.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-colocacion-puntos',
@@ -15,7 +16,8 @@ import { TransaccionService } from '../../services/Transaccion.service';
 export class ColocacionPuntosComponent implements OnInit {
   private fb = inject(FormBuilder);
   private puntosService = inject(PuntosService);
-  private transaccionService = inject(TransaccionService);
+  private usuarioService = inject(UsuarioPerfilService);
+  
   puntosForm!: FormGroup;
   isSubmitting = false;
   successMessage: string | null = null;
@@ -63,16 +65,33 @@ export class ColocacionPuntosComponent implements OnInit {
     return mensajes;
   }
 
-  onSubmit() {
+  async onSubmit() {
     if (this.puntosForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
       this.successMessage = null; // Limpiar mensaje de éxito previo
 
+      const username = this.puntosForm.value.username.trim();
+      const uuidUsuario = await firstValueFrom(this.usuarioService.getUuidByUsername(this.puntosForm.value.username));
+
+      if (!uuidUsuario) {
+        this.isSubmitting = false;
+        Swal.fire({
+          title: 'Error',
+          text: 'El usuario especificado no existe.',
+          icon: 'error',
+          confirmButtonColor: '#e0cb19',
+          background: '#ffffff',
+          iconColor: '#e01919'
+        });
+        return;
+      }
       
       const datos = {
-        username: this.puntosForm.value.username,
-        puntos: this.puntosForm.value.puntos,
-        uuidKeycloak: localStorage.getItem('userUuid') || '' // Importante: incluir el UUID
+        usuarioId: uuidUsuario,
+        monto: this.puntosForm.value.puntos,
+        datosEspecificos : {
+          empresaId : localStorage.getItem('empresaId') || '',
+        }
       };
       
       // Mostrar indicador de carga
@@ -94,12 +113,12 @@ export class ColocacionPuntosComponent implements OnInit {
             this.isSubmitting = false;
             
             // Configurar mensaje de éxito para mostrar en el formulario
-            this.successMessage = `¡Se han añadido ${datos.puntos} puntos al usuario ${datos.username}!`;
+            this.successMessage = `¡Se han añadido ${datos.monto} puntos al usuario ${username}!`;
             
             // Mostrar alerta de éxito
             Swal.fire({
               title: '¡Éxito!',
-              text: `Se han añadido ${datos.puntos} puntos al usuario ${datos.username}`,
+              text: `Se han añadido ${datos.monto} puntos al usuario ${username}`,
               icon: 'success',
               confirmButtonColor: '#3be019',
               background: '#ffffff',

@@ -23,15 +23,15 @@ export class PuntosService {
   }
   
   // Método para asignar puntos a un usuario
-  asignarPuntos(datos: {username: string, puntos: number, uuidKeycloak?: string}): Observable<any> {
+  asignarPuntos(datos: {usuarioId: string, monto: number, datosEspecificos: {empresaId: string}}): Observable<any> {
     const headers = this.getAuthHeaders();
     
     // Asegurarse de incluir el UUID del usuario que está asignando puntos
-    if (!datos.uuidKeycloak) {
-      datos.uuidKeycloak = localStorage.getItem('userUuid') || '';
+    if (!datos.datosEspecificos.empresaId) {
+      datos.datosEspecificos.empresaId = localStorage.getItem('userUuid') || '';
     }
     
-    return this._http.post(`${APIURL}usuarios/api/usuarios/puntos/asignar`, datos, { headers });
+    return this._http.post(`${APIURL}transaccionservice/api/transacciones/transferencias`, datos);
   }
   
   // Opcionalmente: método para verificar si un usuario existe
