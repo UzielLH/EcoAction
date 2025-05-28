@@ -56,7 +56,7 @@ export class CrearEmpresaComponent {
     this.mapa = new mapboxgl.Map({
       container: 'mapa',
       style: 'mapbox://styles/mapbox/streets-v11',
-      center: [-96.7434342, 17.0588186], // Centro inicial (ajusta según tu ubicación)
+      center: [-96.7210, 17.019], // Centro inicial (ajusta según tu ubicación)
       zoom: 12
     });
 
@@ -64,7 +64,7 @@ export class CrearEmpresaComponent {
     this.marker = new mapboxgl.Marker({
       draggable: true
     })
-    .setLngLat([-96.7434342, 17.0588186])
+    .setLngLat([-96.7210, 17.019])
     .addTo(this.mapa);
 
     // Actualizar coordenadas cuando se arrastra el marcador
