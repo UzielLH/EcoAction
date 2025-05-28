@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CreacionEmpresaService } from '../../services/CreacionEmpresa.service';
 import Swal from 'sweetalert2';
+import mapboxgl from 'mapbox-gl';
 
 @Component({
   selector: 'app-crear-empresa',
@@ -18,6 +19,8 @@ import Swal from 'sweetalert2';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CrearEmpresaComponent { 
+  private mapa!: mapboxgl.Map;
+  private marker!: mapboxgl.Marker;
   private fb=inject(FormBuilder);
   private creacionEmpresaService = inject(CreacionEmpresaService);
   registerEmpresa!: FormGroup;
@@ -31,18 +34,77 @@ export class CrearEmpresaComponent {
       fechaNacimiento: ['', [Validators.required]],
       telefono:['',[Validators.required, Validators.pattern('^[0-9+]{10,15}$')]],
       horario:['', [Validators.required, Validators.minLength(5)]],
-      latitud:['', [Validators.required, Validators.pattern('^-?([1-8]?[0-9]|90)\\.\\d+$')]],
+      latitud:['', [Validators.required]],
+      longitud:['', [Validators.required]],
       file:['', [Validators.required]],
-      longitud:['', [Validators.required, Validators.pattern('^-?((1[0-7][0-9])|([1-9]?[0-9]))\\.\\d+$')]],
       password: ['', [Validators.required, Validators.minLength(8)]]
     });
   }
-
+  
+  ngOnInit() {
+    this.initializeMapa();
+  }
   validarEntradaTelefono(event: KeyboardEvent) {
     const tecla = event.key;
     const permitidos = /^[0-9+]$/; // Solo números y el símbolo +
     if (!permitidos.test(tecla)) {
       event.preventDefault(); // Bloquea la entrada si no es válida
+    }
+  }
+
+  private initializeMapa() {
+    this.mapa = new mapboxgl.Map({
+      container: 'mapa',
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [-96.7434342, 17.0588186], // Centro inicial (ajusta según tu ubicación)
+      zoom: 12
+    });
+
+    // Crear marcador arrastrable
+    this.marker = new mapboxgl.Marker({
+      draggable: true
+    })
+    .setLngLat([-96.7434342, 17.0588186])
+    .addTo(this.mapa);
+
+    // Actualizar coordenadas cuando se arrastra el marcador
+    this.marker.on('dragend', () => {
+      const lngLat = this.marker.getLngLat();
+      this.registerEmpresa.patchValue({
+        latitud: lngLat.lat.toFixed(7),
+        longitud: lngLat.lng.toFixed(7)
+      });
+    });
+  }
+
+  async buscarDireccion() {
+    const direccion = this.registerEmpresa.get('direccion')?.value;
+    if (!direccion) return;
+
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(direccion)}.json?access_token=${mapboxgl.accessToken}`
+      );
+      const data = await response.json();
+
+      if (data.features && data.features.length > 0) {
+        const [lng, lat] = data.features[0].center;
+        
+        // Actualizar mapa y marcador
+        this.mapa.flyTo({
+          center: [lng, lat],
+          zoom: 15
+        });
+        this.marker.setLngLat([lng, lat]);
+
+        // Actualizar formulario
+        this.registerEmpresa.patchValue({
+          latitud: lat.toFixed(7),
+          longitud: lng.toFixed(7)
+        });
+      }
+    } catch (error) {
+      console.error('Error al buscar dirección:', error);
     }
   }
   
