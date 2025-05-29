@@ -44,9 +44,9 @@
         <p class="transaction-id kanit-light">ID: {{ tx.id }}</p>
       </div>
       <div class="transaction-amount" 
-           [class.positive]="tx.tipo === 'RECARGA'" 
-           [class.negative]="tx.tipo !== 'RECARGA'">
-        <span class="kanit-semibold">{{ tx.tipo === 'RECARGA' ? '+' : '-' }} ${{ tx.monto.toFixed(2) }}</span>
+           [class.positive]="tx.tipo === 'RECARGA' || tx.tipo === 'TRANSFERENCIA'" 
+           [class.negative]="tx.tipo !== 'RECARGA' && tx.tipo !== 'TRANSFERENCIA'">
+        <span class="kanit-semibold">{{ (tx.tipo === 'RECARGA' || tx.tipo === 'TRANSFERENCIA') ? '+' : '-' }} ${{ tx.monto.toFixed(2) }}</span>
       </div>
     </div>
   </div>
@@ -128,8 +128,8 @@
           
           <div class="detail-row">
             <div class="detail-label kanit-medium">Monto:</div>
-            <div class="detail-value kanit-bold" [class.positive]="transaccionSeleccionada.tipo === 'RECARGA'" 
-                 [class.negative]="transaccionSeleccionada.tipo !== 'RECARGA'">
+            <div class="detail-value kanit-bold" [class.positive]="transaccionSeleccionada.tipo === 'RECARGA' || transaccionSeleccionada.tipo === 'TRANSFERENCIA'" 
+                 [class.negative]="transaccionSeleccionada.tipo !== 'RECARGA' && transaccionSeleccionada.tipo !== 'TRANSFERENCIA'">
               {{ transaccionSeleccionada.tipo === 'RECARGA' ? '+' : '-' }} ${{ transaccionSeleccionada.monto.toFixed(2) }}
             </div>
           </div>
