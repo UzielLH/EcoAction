@@ -130,7 +130,7 @@
             <div class="detail-label kanit-medium">Monto:</div>
             <div class="detail-value kanit-bold" [class.positive]="transaccionSeleccionada.tipo === 'RECARGA' || transaccionSeleccionada.tipo === 'TRANSFERENCIA'" 
                  [class.negative]="transaccionSeleccionada.tipo !== 'RECARGA' && transaccionSeleccionada.tipo !== 'TRANSFERENCIA'">
-              {{ transaccionSeleccionada.tipo === 'RECARGA' ? '+' : '-' }} ${{ transaccionSeleccionada.monto.toFixed(2) }}
+              {{ transaccionSeleccionada.tipo === 'RECARGA' || 'TRANSFERENCIA' ? '+' : '-' }} ${{ transaccionSeleccionada.monto.toFixed(2) }}
             </div>
           </div>
           
