@@ -104,7 +104,7 @@
               (click)="mostrarDetalles(tx)"
               [class.clickable]="true">
             <td class="kanit-regular id-cell">{{ tx.id }}</td>
-            <td class="kanit-regular user-cell">{{ truncateUserId(tx.usuarioId) }}</td>
+            <td class="kanit-regular user-cell">{{ truncateUserId(tx.username) }}</td>
             <td class="kanit-regular date-cell">{{ tx.fecha | date:'dd/MM/yyyy' }}</td>
             <td class="kanit-regular type-cell">
               <div class="type-badge" [ngClass]="getColorForTransactionType(tx.tipo)">
@@ -144,7 +144,7 @@
           </div>
           <div class="card-row">
             <span class="label kanit-medium">Usuario:</span>
-            <span class="value kanit-regular">{{ truncateUserId(tx.usuarioId) }}</span>
+            <span class="value kanit-regular">{{ truncateUserId(tx.username) }}</span>
           </div>
           <div class="card-row">
             <span class="label kanit-medium">Descripción:</span>
@@ -199,8 +199,8 @@
           </div>
           
           <div class="detail-row">
-            <div class="detail-label kanit-medium">ID de Usuario:</div>
-            <div class="detail-value kanit-regular">{{ transaccionSeleccionada.usuarioId }}</div>
+            <div class="detail-label kanit-medium">Username:</div>
+            <div class="detail-value kanit-regular">{{ transaccionSeleccionada.username }}</div>
           </div>
         </div>
         

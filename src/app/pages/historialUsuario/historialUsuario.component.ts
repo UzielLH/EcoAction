@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { TransaccionService } from '../../services/Transaccion.service';
 import { CommonModule } from '@angular/common';
+import { forkJoin } from 'rxjs';
 
 interface Transaccion {
   id: number;
-  usuarioId: string;
+  username: string;
   fecha: string;
   tipo: string;
   monto: number;
@@ -48,23 +49,33 @@ export class HistorialUsuarioComponent implements OnInit {
 
   cargarTransacciones(usuarioId: string) {
     console.log('Cargando transacciones para:', usuarioId);
-    this.transaccionService.TransaccionesUsuario(usuarioId).subscribe({
-      next: (data) => {
-        console.log('Transacciones recibidas:', data);
-        this.transacciones = data;
+    // Combinar las dos llamadas usando forkJoin
+    forkJoin({
+      transacciones: this.transaccionService.TransaccionesUsuario(usuarioId),
+      username: this.transaccionService.ObtenerUsernameUsuario(usuarioId)
+    }).subscribe({
+      next: ({ transacciones, username }) => {
+        console.log('Transacciones recibidas:', transacciones);
+        console.log('Username obtenido:', username);
+        
+        this.transacciones = transacciones.map(tx => ({
+          ...tx,
+          username: username || 'Usuario Desconocido'
+        }));
+        
         this.calcularTotalPaginas();
         this.aplicarPaginacion();
         this.loading = false;
-        this.cdr.detectChanges(); // Forzar detección de cambios
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error en la petición:', err);
         this.error = 'Error al cargar las transacciones';
         this.loading = false;
-        this.cdr.detectChanges(); // Forzar detección de cambios
+        this.cdr.detectChanges();
       }
     });
-  }
+}
   
   // Métodos para paginación
   calcularTotalPaginas() {
