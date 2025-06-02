@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { TransaccionService } from '../../services/Transaccion.service';
 import { CommonModule } from '@angular/common';
+import { forkJoin, Observable, of } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 
 interface Transaccion {
   id: number;
-  usuarioId: string;
+  username: string;
   fecha: string;
   tipo: string;
   monto: number;
@@ -58,7 +60,7 @@ export class HistorialTodoComponent implements OnInit {
     this.activeTab = tipo;
     this.loading = true;
     this.error = null;
-    this.paginaActual = 1; // Reiniciar a la primera página cuando cambia el tipo
+    this.paginaActual = 1;
     
     let request;
     
@@ -75,9 +77,33 @@ export class HistorialTodoComponent implements OnInit {
         break;
     }
     
-    request.subscribe({
-      next: (data) => {
-        this.transacciones = data;
+    request.pipe(
+      mergeMap(transacciones => {
+        const observables = transacciones.map(tx => {
+          const username$ = this.transaccionService.ObtenerUsernameUsuario(tx.usuarioId);
+          const empresa$ = tx.tipo === 'TRANSFERENCIA' && tx.datosEspecificos?.empresaId ? 
+            this.transaccionService.ObtenerNombreEmpresa(tx.datosEspecificos.empresaId) : 
+            of('');
+          return forkJoin({
+            tx: of(tx),
+            username: username$,
+            nombreEmpresa: empresa$,
+          });
+        });
+
+        return forkJoin(observables);
+      })
+    ).subscribe({
+      next: (resultados) => {
+        this.transacciones = resultados.map(({ tx, username, nombreEmpresa }) => ({
+          ...tx,
+          username: username || 'Usuario Desconocido',
+          datosEspecificos: {
+            ...tx.datosEspecificos,
+            nombreEmpresa: nombreEmpresa || tx.datosEspecificos?.empresaId
+          }
+        }));
+
         this.calcularEstadisticas();
         this.aplicarPaginacion();
         this.loading = false;
@@ -91,7 +117,7 @@ export class HistorialTodoComponent implements OnInit {
       }
     });
   }
-  
+
   calcularEstadisticas() {
     this.totalTransacciones = this.transacciones.length;
     this.montoTotal = this.transacciones.reduce((total, tx) => total + tx.monto, 0);
@@ -175,8 +201,7 @@ export class HistorialTodoComponent implements OnInit {
       case 'DONACION':
         return `Donación a meta #${transaction.datosEspecificos?.metaId}`;
       case 'TRANSFERENCIA':
-        const empresaId = transaction.datosEspecificos?.empresaId || '';
-        return `Transferencia de empresa ${empresaId.substring(0, 8)}...`;
+        return `Transferencia de ${transaction.datosEspecificos?.nombreEmpresa}`;
       default:
         return 'Transacción';
     }

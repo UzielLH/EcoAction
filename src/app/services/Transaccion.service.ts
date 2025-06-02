@@ -67,4 +67,18 @@ export class TransaccionService {
     const url = `${APIURL}transaccionservice/api/transacciones`;
     return this._http.get<any[]>(url);
   }
+
+  ObtenerUsernameUsuario(uuidKeycloak: string): Observable<string> {
+    return this._http.get(
+      `${APIURL}usuarios/api/usuarios/usuario/get-username-by-uuidkeycloak?uuidKeycloak=${uuidKeycloak}`,
+      { responseType: 'text' }
+    );
+  }
+
+  ObtenerNombreEmpresa(empresaId: string): Observable<string> {
+    return this._http.get(
+      `${APIURL}usuarios/api/usuarios/empresa/find-username-by-uuid-keycloak?uuidKeycloak=${empresaId}`,
+      { responseType: 'text' }
+    );
+  }
 }
