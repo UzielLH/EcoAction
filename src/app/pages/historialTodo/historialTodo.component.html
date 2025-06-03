@@ -26,6 +26,10 @@
         (click)="cambiarTipo('recargas')">
         <i class="fas fa-credit-card"></i> Recargas
       </button>
+      <button class="tab-button" [class.active]="activeTab === 'transferencias'" (click)="cambiarTipo('transferencias')">
+        <i class="fas fa-exchange-alt"></i>
+        <span>Transferencias</span>
+      </button>
     </div>
   </div>
   
