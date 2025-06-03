@@ -1,13 +1,25 @@
-import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Meta } from '@angular/platform-browser';
-import { catchError, throwError } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { constApi } from '../envirioments/constApi';
-const APIURL=constApi.APIURL;
+
+export interface Meta {
+  id: number;
+  nombreMeta: string;
+  descripcionMeta: string;
+  dineroNecesario: number;
+  dineroRecaudado: number;
+  imagen: string;
+  statusMeta: string;
+}
+
+const APIURL = constApi.APIURL;
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class MetasService {
   private _http=inject(HttpClient);
 
@@ -40,7 +52,7 @@ export class MetasService {
   }
 
   buscarMeta(id: number) {
-    const url = `${APIURL}api/metas/find-by-id?id=${id}`;
+    const url = `${APIURL}metaservice/api/metas/find-by-id?id=${id}`;
     return this._http.get<Meta>(url); // Especificar el tipo de retorno
   }
 
