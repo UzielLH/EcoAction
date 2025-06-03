@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, ChangeDetectorRef }
 import { TransaccionService } from '../../services/Transaccion.service';
 import { CommonModule } from '@angular/common';
 import { forkJoin, Observable, of } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
+import { mergeMap, map, catchError } from 'rxjs/operators';
+import { MetasService } from '../../services/metas.service';
 
 interface Transaccion {
   id: number;
@@ -27,6 +28,7 @@ interface Transaccion {
 })
 export class HistorialTodoComponent implements OnInit {
   private transaccionService = inject(TransaccionService);
+  private metasService = inject(MetasService); // Inyectar servicio de metas
   private cdr = inject(ChangeDetectorRef);
   
   // Propiedades para almacenar transacciones
@@ -71,11 +73,14 @@ export class HistorialTodoComponent implements OnInit {
       case 'recargas':
         request = this.transaccionService.ListarRecarga();
         break;
-      case 'todas':
-      default:
+      case 'transferencias':
         request = this.transaccionService.ListarTransferencia();
         break;
-    }
+      case 'todas':
+      default:
+        request = this.transaccionService.ListarTransacciones(); // Este debería listar todas, no solo transferencias
+        break;
+  }
     
     request.pipe(
       mergeMap(transacciones => {
@@ -84,10 +89,20 @@ export class HistorialTodoComponent implements OnInit {
           const empresa$ = tx.tipo === 'TRANSFERENCIA' && tx.datosEspecificos?.empresaId ? 
             this.transaccionService.ObtenerNombreEmpresa(tx.datosEspecificos.empresaId) : 
             of('');
+
+          // Obtener nombre de meta para donaciones
+          const meta$ = tx.tipo === 'DONACION' && tx.datosEspecificos?.metaId ? 
+            this.metasService.buscarMeta(tx.datosEspecificos.metaId).pipe(
+              map(meta => meta?.nombreMeta || ''),
+              catchError(() => of(''))
+            ) : 
+            of('');
+
           return forkJoin({
             tx: of(tx),
             username: username$,
             nombreEmpresa: empresa$,
+            nombreMeta: meta$
           });
         });
 
@@ -95,12 +110,13 @@ export class HistorialTodoComponent implements OnInit {
       })
     ).subscribe({
       next: (resultados) => {
-        this.transacciones = resultados.map(({ tx, username, nombreEmpresa }) => ({
+        this.transacciones = resultados.map(({ tx, username, nombreEmpresa, nombreMeta }) => ({
           ...tx,
           username: username || 'Usuario Desconocido',
           datosEspecificos: {
             ...tx.datosEspecificos,
-            nombreEmpresa: nombreEmpresa || tx.datosEspecificos?.empresaId
+            nombreEmpresa: nombreEmpresa || tx.datosEspecificos?.empresaId,
+            nombreMeta: nombreMeta || '' // Añadir nombre de meta
           }
         }));
 
@@ -199,7 +215,9 @@ export class HistorialTodoComponent implements OnInit {
       case 'RECARGA':
         return `Recarga con tarjeta ${this.formatCardNumber(transaction.datosEspecificos?.numeroTarjeta)}`;
       case 'DONACION':
-        return `Donación a meta #${transaction.datosEspecificos?.metaId}`;
+        return transaction.datosEspecificos?.nombreMeta ? 
+          `Donación a meta #${transaction.datosEspecificos?.metaId} (${transaction.datosEspecificos?.nombreMeta})` : 
+          `Donación a meta #${transaction.datosEspecificos?.metaId}`;
       case 'TRANSFERENCIA':
         return `Transferencia de ${transaction.datosEspecificos?.nombreEmpresa}`;
       default:
