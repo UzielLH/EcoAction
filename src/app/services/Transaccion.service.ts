@@ -63,8 +63,13 @@ export class TransaccionService {
     return this._http.get<any[]>(url);
   }
 
-  ListarTransferencia(): Observable<any[]> {
+  ListarTransacciones(): Observable<any[]> {
     const url = `${APIURL}transaccionservice/api/transacciones`;
+    return this._http.get<any[]>(url);
+  }
+
+  ListarTransferencia(): Observable<any[]> {
+    const url = `${APIURL}transaccionservice/api/transacciones/tipo/TRANSFERENCIA`;
     return this._http.get<any[]>(url);
   }
 

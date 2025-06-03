@@ -73,11 +73,14 @@ export class HistorialTodoComponent implements OnInit {
       case 'recargas':
         request = this.transaccionService.ListarRecarga();
         break;
-      case 'todas':
-      default:
+      case 'transferencias':
         request = this.transaccionService.ListarTransferencia();
         break;
-    }
+      case 'todas':
+      default:
+        request = this.transaccionService.ListarTransacciones(); // Este debería listar todas, no solo transferencias
+        break;
+  }
     
     request.pipe(
       mergeMap(transacciones => {
