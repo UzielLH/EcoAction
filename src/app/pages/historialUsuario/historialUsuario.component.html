@@ -3,13 +3,16 @@
     <h1 class="kanit-bold">Historial de Transacciones</h1>
     <p class="subtitle kanit-light">Revisa todas tus actividades financieras en EcoAction</p>
   </div>
-
+  
+  <div class="loading-state" *ngIf="!transaccionesCargadas">
+    <p class="kanit-regular">Aún no tienes transacciones registradas.</p>
   <!-- Estado de carga -->
-  <div class="loading-state" *ngIf="loading">
+  <div class="loading-state" *ngIf="loading && transaccionesCargadas">
     <div class="spinner"></div>
     <p class="kanit-regular">Cargando transacciones...</p>
   </div>
 
+  
   <!-- Mensaje de error -->
   <div class="error-message" *ngIf="error">
     <i class="fas fa-exclamation-circle"></i>

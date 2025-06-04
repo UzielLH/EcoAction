@@ -34,6 +34,7 @@ export class HistorialUsuarioComponent implements OnInit {
   transacciones: Transaccion[] = [];
   transaccionesFiltradas: Transaccion[] = []; // Transacciones para la página actual
   loading = true;
+  transaccionesCargadas:Boolean = false; // Indica si las transacciones ya fueron cargadas
   error: string | null = null;
   
   // Propiedades de paginación
@@ -108,6 +109,7 @@ export class HistorialUsuarioComponent implements OnInit {
         this.aplicarPaginacion();
         this.loading = false;
         this.cdr.detectChanges();
+        this.transaccionesCargadas = true; // Marcar que las transacciones fueron cargadas
       },
       error: (err) => {
         console.error('Error en la petición:', err);
