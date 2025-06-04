@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { TransaccionService } from '../../services/Transaccion.service';
+import { MetasService } from '../../services/metas.service';
 import { CommonModule } from '@angular/common';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
+import { mergeMap, map, catchError } from 'rxjs/operators';
 
 interface Transaccion {
   id: number;
@@ -26,6 +28,7 @@ interface Transaccion {
 })
 export class HistorialUsuarioComponent implements OnInit { 
   private transaccionService = inject(TransaccionService);
+  private metasService = inject(MetasService); // Inyectar servicio de metas
   private cdr = inject(ChangeDetectorRef); // Inyectar ChangeDetectorRef
   
   transacciones: Transaccion[] = [];
@@ -49,18 +52,56 @@ export class HistorialUsuarioComponent implements OnInit {
 
   cargarTransacciones(usuarioId: string) {
     console.log('Cargando transacciones para:', usuarioId);
-    // Combinar las dos llamadas usando forkJoin
-    forkJoin({
-      transacciones: this.transaccionService.TransaccionesUsuario(usuarioId),
-      username: this.transaccionService.ObtenerUsernameUsuario(usuarioId)
-    }).subscribe({
-      next: ({ transacciones, username }) => {
-        console.log('Transacciones recibidas:', transacciones);
-        console.log('Username obtenido:', username);
+    
+    // Primero obtener las transacciones y el username
+    this.transaccionService.TransaccionesUsuario(usuarioId).pipe(
+      mergeMap(transacciones => {
+        // Obtener el username
+        const username$ = this.transaccionService.ObtenerUsernameUsuario(usuarioId);
         
-        this.transacciones = transacciones.map(tx => ({
+        // Para cada transacción, obtener datos adicionales según su tipo
+        const observables = transacciones.map(tx => {
+          // Para donaciones, obtener el nombre de la meta
+          const meta$ = tx.tipo === 'DONACION' && tx.datosEspecificos?.metaId ? 
+            this.metasService.buscarMeta(tx.datosEspecificos.metaId).pipe(
+              map(meta => meta?.nombreMeta || ''),
+              catchError(() => of(''))
+            ) : 
+            of('');
+            
+          // Para transferencias, obtener el nombre de la empresa (si fuera necesario)
+          const empresa$ = tx.tipo === 'TRANSFERENCIA' && tx.datosEspecificos?.empresaId ? 
+            this.transaccionService.ObtenerNombreEmpresa(tx.datosEspecificos.empresaId).pipe(
+              catchError(() => of(''))
+            ) : 
+            of('');
+            
+          return forkJoin({
+            tx: of(tx),
+            nombreMeta: meta$,
+            nombreEmpresa: empresa$
+          });
+        });
+        
+        // Combinar el resultado de todas las observables
+        return forkJoin({
+          transaccionesData: forkJoin(observables),
+          username: username$
+        });
+      })
+    ).subscribe({
+      next: ({ transaccionesData, username }) => {
+        console.log('Datos de transacciones obtenidos');
+        
+        // Construir transacciones con datos completos
+        this.transacciones = transaccionesData.map(({ tx, nombreMeta, nombreEmpresa }) => ({
           ...tx,
-          username: username || 'Usuario Desconocido'
+          username: username || 'Usuario Desconocido',
+          datosEspecificos: {
+            ...tx.datosEspecificos,
+            nombreMeta: nombreMeta || '',
+            nombreEmpresa: nombreEmpresa || ''
+          }
         }));
         
         this.calcularTotalPaginas();
@@ -75,7 +116,7 @@ export class HistorialUsuarioComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
-}
+  }
   
   // Métodos para paginación
   calcularTotalPaginas() {
@@ -152,10 +193,13 @@ export class HistorialUsuarioComponent implements OnInit {
       case 'RECARGA':
         return `Recarga con tarjeta ${this.formatCardNumber(transaction.datosEspecificos?.numeroTarjeta)}`;
       case 'DONACION':
-        return `Donación a meta #${transaction.datosEspecificos?.metaId}`;
+        return transaction.datosEspecificos?.nombreMeta ? 
+          `Donación a meta "${transaction.datosEspecificos.nombreMeta}"` : 
+          `Donación a meta #${transaction.datosEspecificos?.metaId}`;
       case 'TRANSFERENCIA':
-        const empresaId = transaction.datosEspecificos?.empresaId || '';
-        return `Transferencia de empresa ${empresaId.substring(0, 8)}...`;
+        return transaction.datosEspecificos?.nombreEmpresa ?
+          `Transferencia de "${transaction.datosEspecificos.nombreEmpresa}"` :
+          `Transferencia de empresa ${(transaction.datosEspecificos?.empresaId || '').substring(0, 8)}...`;
       default:
         return 'Transacción';
     }

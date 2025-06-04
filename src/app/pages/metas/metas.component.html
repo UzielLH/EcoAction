@@ -5,214 +5,373 @@
   </div>
 
   <!-- Contenedor de botones y saldo -->
-  <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-6">
-    <!-- Mostrar botón "Crear meta" solo si el rol es admin -->
-    <button *ngIf="userRole === 'admin-realm-rol'" 
-      (click)="mostrarFormulario = true"
-      class="px-4 py-2 bg-green-500 text-white kanit-bold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
-      Crear meta
-    </button>
-
-    <!-- Mostrar botón "Agregar Saldo" solo si el rol es user -->
-    <button *ngIf="userRole === 'user-realm-rol'" 
-      (click)="mostrarFormularioSaldo = true"
-      class="px-4 py-2 bg-green-500 text-white kanit-bold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
-      Agregar Saldo
-    </button>
-
-    <!-- Mostrar saldo solo si el rol es user, pero mantener el espacio reservado -->
-    <p *ngIf="userRole === 'user-realm-rol'; else emptySaldo" 
-      class="text-xl kanit-semibold text-gray-800">
-      Saldo: {{ saldoPersona | currency }}
-    </p>
-    <ng-template #emptySaldo>
-      <div class="w-32"></div> <!-- Espacio reservado para mantener el diseño -->
-    </ng-template>
+  <div class="w-full flex flex-col items-center mb-6">
+    <!-- Contenedor para administradores -->
+    <div *ngIf="userRole === 'admin-realm-rol'" class="flex justify-center w-full mb-2">
+      <button 
+        (click)="mostrarFormulario = true"
+        class="px-6 py-2 bg-green-700 text-white kanit-bold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
+        Crear meta
+      </button>
+    </div>
+  
+    <!-- Contenedor para usuarios normales (botón + saldo) -->
+    <div *ngIf="userRole === 'user-realm-rol'" class="flex flex-col sm:flex-row items-center gap-4">
+      <button 
+        (click)="mostrarFormularioSaldo = true"
+        class="px-4 py-2 bg-green-700 text-white kanit-bold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
+        Agregar Saldo
+      </button>
+      
+      <p class="text-xl kanit-semibold text-gray-800">
+        Saldo: {{ saldoPersona | currency }}
+      </p>
+    </div>
+  
+    <!-- Espacio reservado para otros roles (empresas) -->
+    <div *ngIf="userRole !== 'admin-realm-rol' && userRole !== 'user-realm-rol'" class="h-8">
+      <!-- Espacio reservado vacío para mantener consistencia en el layout -->
+    </div>
   </div>
 
-  <!-- Fondo desenfocado cuando el formulario está activo -->
+  <!-- Modal de creación de meta -->
   <div *ngIf="mostrarFormulario" class="fixed inset-0 backdrop-blur-md z-40"></div>
-
   <div *ngIf="mostrarFormulario" class="fixed inset-0 flex justify-center items-center z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-      <h1 class="text-3xl kanit-bold text-gray-900 text-center">Creación de metas</h1>
+    <div class="bg-white p-8 rounded-xl shadow-xl w-96 max-w-md">
+      <h1 class="text-3xl kanit-bold text-gray-900 text-center mb-6">Creación de metas</h1>
       <form [formGroup]="metaForm" (ngSubmit)="register()">
         <div class="mb-4">
           <label for="nombre" class="block text-gray-700 kanit-bold mb-2">Nombre:</label>
-          <input formControlName="nombreMeta" type="text" id="nombre" class="w-full p-2 border rounded" />
+          <input formControlName="nombreMeta" type="text" id="nombre" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" />
           <p class="text-sm text-red-500">{{ obtenerMensajesError('nombreMeta') }}</p>
         </div>
     
         <div class="mb-4">
           <label for="cantidad" class="block text-gray-700 kanit-bold mb-2">Cantidad de Monedas:</label>
-          <input formControlName="dineroNecesario" type="number" id="cantidad" class="w-full p-2 border rounded" />
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <span class="text-gray-500">$</span>
+            </div>
+            <input formControlName="dineroNecesario" type="number" id="cantidad" class="w-full p-3 pl-7 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" />
+          </div>
           <p class="text-sm text-red-500">{{ obtenerMensajesError('dineroNecesario') }}</p>
         </div>
     
         <div class="mb-4">
           <label for="descripcion" class="block text-gray-700 kanit-bold mb-2">Descripción:</label>
-          <textarea formControlName="descripcionMeta" id="descripcion" class="w-full p-2 border rounded"></textarea>
+          <textarea formControlName="descripcionMeta" id="descripcion" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" rows="4"></textarea>
           <p class="text-sm text-red-500">{{ obtenerMensajesError('descripcionMeta') }}</p>
         </div>
 
         <div class="form-group mb-4">
           <label for="imagen" class="block text-gray-700 kanit-bold mb-2">Imagen:</label>
-          <input formControlName="imagen" type="file" (change)="onFileSelected($event)"  id="imagen" name="imagen" accept=".jpg, .png" class="kanit-extralight shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          <div class="flex items-center justify-center w-full">
+            <label for="imagen" class="flex flex-col items-center justify-center w-full h-36 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+              <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                <svg class="w-8 h-8 mb-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                <p class="mb-2 text-sm text-gray-500 kanit-extralight">
+                  <span class="font-semibold">Haz clic para subir</span> o arrastra y suelta
+                </p>
+                <p class="text-xs text-gray-500 kanit-extralight">Solo JPG o PNG</p>
+              </div>
+              <input id="imagen" name="imagen" type="file" class="hidden" accept=".jpg, .png" (change)="onFileSelected($event)" />
+            </label>
+          </div>
           <p class="text-sm text-red-500 p-1 kanit-extralight">
             {{obtenerMensajesError('imagen')}}
           </p>
         </div>
     
-        <div class="flex justify-between">
-          <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Crear meta</button>
-          <button type="button" (click)="mostrarFormulario = false" class="bg-red-500 text-white px-4 py-2 rounded ">Cancelar</button>
+        <div class="flex justify-between mt-8">
+          <button 
+            type="submit" 
+            class="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-lg kanit-bold text-lg transition duration-300 shadow-md hover:shadow-lg">
+            Crear meta
+          </button>
+          <button 
+            type="button" 
+            (click)="mostrarFormulario = false" 
+            class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-3 rounded-lg kanit-bold transition duration-300">
+            Cancelar
+          </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Contenedor de las tarjetas -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+  <!-- Contenedor de las tarjetas con diseño mejorado -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
     <div *ngFor="let meta of metas"
-      class="relative overflow-hidden w-70 h-120 rounded-3xl cursor-pointer text-2xl kanit-bold shadow-lg"
-      style="background-color: #E0E019;"
+      class="relative overflow-hidden w-full max-w-sm rounded-2xl cursor-pointer shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl bg-gradient-to-br from-green-50 to-green-100 border border-green-200"
     >
-      <div class="z-10 absolute w-full h-full peer"></div>
-
-      <!-- Efecto en la esquina superior izquierda -->
-      <div
-        class="absolute peer-hover:-top-20 peer-hover:-left-16 peer-hover:w-[140%] peer-hover:h-[140%] 
-        -top-32 -left-16 w-32 h-44 rounded-full transition-all duration-500"
-        style="background-color: #eeee63;"
-      ></div>
-      
-      <!-- Contenedor emergente que aparece en hover -->
-      <div
-  class="absolute flex flex-col items-center justify-center text-center text-xl bg-[#eeee63] 
-  transition-all duration-500 rounded-3xl w-full h-full opacity-100 pointer-events-auto 
-  md:opacity-0 md:hover:opacity-100 md:peer-hover:opacity-100 md:pointer-events-auto sm:opacity-100 sm:pointer-events-auto">
-
-        <img [src]="meta.imagen" alt="imagen" class="w-100 h-auto rounded-lg p-2">
-        <p class="text-gray-900 kanit-semibold">{{ meta.nombreMeta }}</p>
-        <p class="text-gray-700 kanit-semibold">{{ meta.dineroRecaudado }}/{{ meta.dineroNecesario }} monedas</p>
-        <p class="text-gray-600 text-sm kanit-semibold">{{ meta.descripcionMeta }}</p>
-        <button 
-        (click)="abrirFormularioDonacion(meta)"  
-        [disabled]="meta.statusMeta === 'FINALIZADA' || userRole === 'empresa-realm-rol'"
-        class="px-4 py-2 text-white kanit-bold rounded-lg shadow-md 
-        transition duration-300 pointer-events-auto z-20"
-        [ngClass]="meta.statusMeta === 'FINALIZADA' || userRole === 'empresa-realm-rol' 
-          ? 'bg-gray-400 cursor-not-allowed' 
-          : 'bg-green-500 hover:bg-green-600'"
-      >
-        {{ meta.statusMeta === 'FINALIZADA' 
-          ? 'Meta completada' 
-          : (userRole === 'empresa-realm-rol' ? 'Solo usuarios pueden donar' : 'Donar') }}
-      </button>
+      <!-- Imagen con contenedor proporcionado -->
+      <div class="w-full h-48 overflow-hidden">
+        <img [src]="meta.imagen" alt="imagen" 
+             class="w-full h-full object-cover transition-all duration-500 hover:scale-110">
       </div>
-
-  <!-- Fondo desenfocado cuando el formulario Donacion está activo -->
-  <div *ngIf="mostrarFormularioDonacion" class="fixed inset-0 backdrop-blur-md z-40"></div>
-
-  <div *ngIf="mostrarFormularioDonacion" class="fixed inset-0 flex justify-center items-center z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-      <h1 class="text-3xl kanit-bold text-gray-900 text-center ">Ingresa tu donación</h1>
-      <form [formGroup]="donacionForm" (ngSubmit)="registerDonation()">
-
-    
-        <div class="mb-4">
-          <label for="cantidad" class="block text-gray-700 kanit-bold mb-2 text-base">Cantidad a donar:</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <span class="text-gray-500">$</span>
-            </div>
-            <input formControlName="donacion" type="number" id="cantidad" class="w-full p-2 pl-7 border rounded" />
+      
+      <!-- Status badge -->
+      <div *ngIf="meta.statusMeta === 'FINALIZADA'" 
+           class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-xs kanit-bold shadow-md">
+        Completada
+      </div>
+      
+      <!-- Cuerpo de la tarjeta con información -->
+      <div class="px-6 py-4">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-xl kanit-bold text-gray-900 truncate">{{ meta.nombreMeta }}</h3>
+        </div>
+        
+        <!-- Información de progreso con porcentaje -->
+        <div class="mb-3">
+          <div class="flex justify-between items-center text-sm">
+            <span class="kanit-semibold text-gray-700">
+              {{ meta.dineroRecaudado | currency }} recaudado
+            </span>
+            <span class="text-green-600 kanit-bold">
+              {{ (meta.dineroRecaudado / meta.dineroNecesario) * 100 | number:'1.0-0' }}%
+            </span>
           </div>
-          <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorDonacion('donacion') }}</p>
+          
+          <!-- Barra de progreso más visible -->
+          <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+            <div class="bg-green-600 h-2.5 rounded-full" 
+                 [style.width.%]="(meta.dineroRecaudado / meta.dineroNecesario) * 100"></div>
+          </div>
+          
+          <div class="text-right text-xs mt-1 text-gray-500">
+            Meta: {{ meta.dineroNecesario | currency }}
+          </div>
         </div>
-    
-        <div class="flex justify-between">
-          <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded kanit-extralight text-lg">Donar</button>
-          <button type="button" (click)="mostrarFormularioDonacion = false" class="bg-red-500 text-white px-4 py-2 rounded kanit-extralight text-lg">Cancelar</button>
+        
+        <!-- Descripción con límite de altura -->
+        <div class="mb-4">
+          <p class="text-gray-600 text-sm kanit-extralight h-20 overflow-y-auto">{{ meta.descripcionMeta }}</p>
         </div>
-      </form>
+        
+        <!-- Botón de acción -->
+        <div class="flex justify-center">
+          <div *ngIf="userRole === 'user-realm-rol'">
+            <button 
+              (click)="abrirFormularioDonacion(meta)"  
+              [disabled]="meta.statusMeta === 'FINALIZADA'"
+              class="w-full py-2.5 text-white kanit-bold rounded-lg shadow-md 
+              transition duration-300 pointer-events-auto z-20 text-center mx-1.5"
+              [ngClass]="meta.statusMeta === 'FINALIZADA' 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-green-600 hover:bg-green-700'"
+            >
+              {{ meta.statusMeta === 'FINALIZADA' 
+                ? 'Meta completada' 
+                : 'Apoyar meta' }}
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Modal específico para cada meta -->
+      <div *ngIf="mostrarFormularioDonacion && metaSeleccionada && meta.id === metaSeleccionada.id" 
+          class="fixed inset-0 flex justify-center items-center z-50">
+        <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm" 
+            (click)="mostrarFormularioDonacion = false"></div>
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md relative 
+                  transform transition-all duration-300 z-50 animate-fade-in">
+          <!-- Botón de cerrar en esquina -->
+          <button 
+            (click)="mostrarFormularioDonacion = false" 
+            class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          
+          <!-- Encabezado del modal -->
+          <div class="text-center mb-6">
+            <h1 class="text-3xl kanit-bold text-gray-900">Apoyar esta meta</h1>
+            <p class="text-green-600 mt-2">{{ meta.nombreMeta }}</p>
+          </div>
+          
+          <!-- Resumen de la meta -->
+          <div class="bg-gray-50 p-4 rounded-lg mb-6">
+            <div class="flex justify-between items-center text-sm mb-2">
+              <span class="kanit-bold text-gray-700">
+                Progreso actual:
+              </span>
+              <span class="text-green-600 kanit-bold">
+                {{ (meta.dineroRecaudado / meta.dineroNecesario) * 100 | number:'1.0-0' }}%
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-green-600 h-2 rounded-full" 
+                  [style.width.%]="(meta.dineroRecaudado / meta.dineroNecesario) * 100"></div>
+            </div>
+            <div class="flex justify-between text-xs mt-1">
+              <span>{{ meta.dineroRecaudado | currency }}</span>
+              <span>{{ meta.dineroNecesario | currency }}</span>
+            </div>
+          </div>
+          
+          <form [formGroup]="donacionForm" (ngSubmit)="registerDonation()" class="space-y-6">
+            <!-- Campo de cantidad con diseño mejorado -->
+            <div>
+              <label for="donacion-cantidad" class="block text-gray-700 kanit-bold mb-2 text-base">
+                ¿Con cuánto deseas apoyar?
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                  <span class="text-green-600 font-bold">$</span>
+                </div>
+                <input 
+                  formControlName="donacion" 
+                  type="number" 
+                  id="donacion-cantidad" 
+                  class="w-full p-3 pl-8 border-2 border-green-200 rounded-lg focus:outline-none focus:border-green-500 transition-colors" 
+                  placeholder="Ingresa tu cantidad" />
+              </div>
+              <p class="text-sm text-red-500 mt-1">{{ obtenerMensajesErrorDonacion('donacion') }}</p>
+              <p *ngIf="userRole === 'user-realm-rol'" class="text-xs text-gray-500 mt-1">
+                Tu saldo disponible: {{ saldoPersona | currency }}
+              </p>
+            </div>
+      
+            <!-- Botones de acción -->
+            <div class="flex gap-4">
+              <button 
+                type="submit" 
+                class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg kanit-bold text-lg transition-colors shadow-md hover:shadow-lg">
+                Confirmar donación
+              </button>
+              <button 
+                type="button" 
+                (click)="mostrarFormularioDonacion = false" 
+                class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 
-
-  <!-- Fondo desenfocado cuando el formulario Saldo está activo -->
+  <!-- Modal para agregar saldo -->
   <div *ngIf="mostrarFormularioSaldo" class="fixed inset-0 backdrop-blur-md z-40"></div>
-
   <div *ngIf="mostrarFormularioSaldo" class="fixed inset-0 flex justify-center items-center z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-      <h1 class="text-3xl kanit-bold text-gray-900 text-center">Ingresa saldo a depositar</h1>
+    <div class="bg-white p-8 rounded-xl shadow-xl w-96 max-w-md relative">
+      <!-- Botón de cerrar en esquina -->
+      <button 
+        (click)="mostrarFormularioSaldo = false" 
+        class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      
+      <h1 class="text-3xl kanit-bold text-gray-900 text-center mb-6">Agregar saldo</h1>
       <form [formGroup]="SaldoForm" (ngSubmit)="registerSaldo()">
         
         <div class="mb-4">
           <label for="nombre" class="block text-gray-700 kanit-bold mb-2 text-base">Nombre del titular:</label>
-          <input formControlName="nombreTarjeta" type="text" id="nombre" class="w-full p-2 border rounded" placeholder="Juan López"/>
+          <input formControlName="nombreTarjeta" type="text" id="nombre" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Juan López"/>
           <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorSaldo('nombreTarjeta') }}</p>
         </div>
 
         <div class="mb-4">
-          <label for="cantidad" class="block text-gray-700 kanit-bold mb-2 text-base">Tarjeta:</label>
-          <input 
-            formControlName="notarjeta" 
-            type="text" 
-            id="cantidad" 
-            class="w-full p-2 border rounded" 
-            placeholder="xxxx xxxx xxxx xxxx" 
-            maxlength="16" 
-            (input)="validateNumericInput($event)" />
+          <label for="cantidad" class="block text-gray-700 kanit-bold mb-2 text-base">Número de tarjeta:</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+            </div>
+            <input 
+              formControlName="notarjeta" 
+              type="text" 
+              id="cantidad" 
+              class="w-full p-3 pl-10 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+              placeholder="xxxx xxxx xxxx xxxx" 
+              maxlength="16" 
+              (input)="validateNumericInput($event)" />
+          </div>
           <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorSaldo('notarjeta') }}</p>
         </div>
 
-        <div class="mb-4">
-          <label for="vencimiento" class="block text-gray-700 kanit-bold mb-2 text-base">Vencimiento:</label>
-          <input formControlName="vencimiento" type="text" id="vencimiento" class="w-full p-2 border rounded" 
-                 (input)="formatVencimiento($event)" maxlength="5" placeholder="MM/YY" />
-          <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorSaldo('vencimiento') }}</p>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label for="vencimiento" class="block text-gray-700 kanit-bold mb-2 text-base">Vencimiento:</label>
+            <input 
+              formControlName="vencimiento" 
+              type="text" 
+              id="vencimiento" 
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+              (input)="formatVencimiento($event)" 
+              maxlength="5" 
+              placeholder="MM/YY" />
+            <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorSaldo('vencimiento') }}</p>
+          </div>
+
+          <div>
+            <label for="cvc" class="block text-gray-700 kanit-bold mb-2 text-base">CVC:</label>
+            <input 
+              formControlName="cvc" 
+              type="text" 
+              id="cvc" 
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+              maxlength="3" 
+              (input)="validateNumericInput($event)" 
+              placeholder="123" />
+            <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorSaldo('cvc') }}</p>
+          </div>
         </div>
 
-        <div class="mb-4">
-          <label for="nombre" class="block text-gray-700 kanit-bold mb-2 text-base">CVC:</label>
-          <input 
-            formControlName="cvc" 
-            type="text" 
-            id="number" 
-            class="w-full p-2 border rounded" 
-            maxlength="3" 
-            (input)="validateNumericInput($event)" 
-            placeholder="123" />
-          <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorSaldo('cvc') }}</p>
-        </div>
-
-        <div class="mb-4">
-          <label for="cantidad" class="block text-gray-700 kanit-bold mb-2 text-base">Saldo a agregar:</label>
+        <div class="mb-6">
+          <label for="saldo" class="block text-gray-700 kanit-bold mb-2 text-base">Saldo a agregar:</label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <span class="text-gray-500">$</span>
+              <span class="text-green-600 font-bold">$</span>
             </div>
-            <input formControlName="saldo" type="number" id="cantidad" class="w-full p-2 pl-7 border rounded" />
+            <input 
+              formControlName="saldo" 
+              type="number" 
+              id="saldo" 
+              class="w-full p-3 pl-8 border-2 border-green-200 rounded-lg focus:outline-none focus:border-green-500 transition-colors" />
           </div>
           <p class="text-sm text-red-500 kanit-extralight">{{ obtenerMensajesErrorSaldo('saldo') }}</p>
         </div>
         
-        <div class="flex justify-between">
-          <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded kanit-extralight text-lg">Depositar</button>
-          <button type="button" (click)="mostrarFormularioSaldo = false" class="bg-red-500 text-white px-4 py-2 rounded kanit-extralight text-lg">Cancelar</button>
+        <div class="flex gap-4">
+          <button 
+            type="submit" 
+            class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg kanit-bold text-lg transition-colors shadow-md hover:shadow-lg">
+            Depositar
+          </button>
+          <button 
+            type="button" 
+            (click)="mostrarFormularioSaldo = false" 
+            class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">
+            Cancelar
+          </button>
         </div>
       </form>
     </div>
   </div>
-
-
-
-      <!-- Contenido principal (siempre visible) -->
-      <div class="w-full h-full flex flex-col items-center justify-center text-center p-4 space-y-2">
-        <img [src]="meta.imagen" alt="imagen" class="w-32 h-32 rounded-full mb-2">
-        <p class="text-gray-900 kanit-semibold">{{ meta.nombreMeta }}</p>
-      </div>
-    </div>
-  </div>
 </div>
+
+<style>
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 30px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fadeInUp 0.3s ease-out;
+  }
+</style>
