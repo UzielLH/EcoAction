@@ -79,7 +79,9 @@ export class CrearEmpresaComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private creacionEmpresaService = inject(CreacionEmpresaService);
   registerEmpresa!: FormGroup;
-  
+  // Añade estas propiedades a tu clase de componente
+  isDragging = false;
+  selectedFile: File | null = null;
   // Variables para mejorar la experiencia de usuario
   mapaInicializado = false;
   cargandoDireccion = false;
@@ -126,6 +128,99 @@ export class CrearEmpresaComponent implements OnInit, OnDestroy {
       document.removeEventListener('keydown', this.keyboardListener);
     }
   }
+
+  // Método para manejar el evento dragover
+onDragOver(event: DragEvent): void {
+  event.preventDefault();
+  event.stopPropagation();
+  this.isDragging = true;
+}
+
+// Método para manejar el evento dragleave
+onDragLeave(event: DragEvent): void {
+  event.preventDefault();
+  event.stopPropagation();
+  this.isDragging = false;
+}
+
+// Método para manejar el evento drop
+onDrop(event: DragEvent): void {
+  event.preventDefault();
+  event.stopPropagation();
+  this.isDragging = false;
+  
+  const files = event.dataTransfer?.files;
+  if (files && files.length > 0) {
+    this.handleFile(files[0]);
+  }
+}
+
+// Método para manejar la subida de archivos desde el input o el drop
+// onFileChange(event: Event): void {
+//   const fileInput = event.target as HTMLInputElement;
+//   if (fileInput.files && fileInput.files[0]) {
+//     this.handleFile(fileInput.files[0]);
+//   }
+// }
+
+// Método común para procesar el archivo
+handleFile(file: File): void {
+  // Validar tipo de archivo
+  if (!file.type.match('image/*')) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Formato no válido',
+      text: 'El archivo debe ser una imagen (JPG, PNG, etc.)',
+      confirmButtonColor: '#d33'
+    });
+    return;
+  }
+  
+  // Validar tamaño (5MB máximo)
+  if (file.size > 5 * 1024 * 1024) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Imagen demasiado grande',
+      text: 'El archivo no debe superar los 5MB',
+      confirmButtonColor: '#d33'
+    });
+    return;
+  }
+  
+  // Guardar el archivo seleccionado
+  this.selectedFile = file;
+  
+  // Actualizar control de formulario
+  this.registerEmpresa.patchValue({
+    file: file.name
+  });
+  this.registerEmpresa.markAsDirty();
+  
+  // Crear vista previa usando ChangeDetectorRef para actualización inmediata
+  const reader = new FileReader();
+  reader.onload = () => {
+    // Usar setTimeout para asegurar que Angular detecte el cambio
+    setTimeout(() => {
+      this.imagenPreview = reader.result as string;
+    }, 0);
+  };
+  reader.readAsDataURL(file);
+}
+
+// Método para eliminar la imagen seleccionada
+removeImage(): void {
+  this.imagenPreview = null;
+  this.selectedFile = null;
+  this.registerEmpresa.patchValue({
+    file: ''
+  });
+  
+  // Reset el input file
+  const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+  if (fileInput) {
+    fileInput.value = '';
+  }
+}
   
   validarEntradaTelefono(event: KeyboardEvent) {
     const tecla = event.key;
@@ -374,7 +469,7 @@ export class CrearEmpresaComponent implements OnInit, OnDestroy {
         throw new Error('No se pudo obtener el ID de la empresa creada');
       }
 
-      await this.creacionEmpresaService.subirImagen(empresaId, imageFile).toPromise();
+      await this.creacionEmpresaService.subirImagen(empresaId, this.selectedFile!).toPromise();
 
       Swal.fire({
         icon: 'success',
@@ -427,7 +522,7 @@ export class CrearEmpresaComponent implements OnInit, OnDestroy {
   }
   
   // Método auxiliar para obtener etiquetas de los campos para mensajes de error
-  private obtenerEtiquetaCampo(controlName: string): string {
+  obtenerEtiquetaCampo(controlName: string): string {
     const etiquetas: {[key: string]: string} = {
       'nombre': 'Nombre de la empresa',
       'username': 'Nombre de usuario',
@@ -443,5 +538,13 @@ export class CrearEmpresaComponent implements OnInit, OnDestroy {
     };
     
     return etiquetas[controlName] || controlName;
+  }
+
+  getInvalidControls(): string[] {
+  return Object.keys(this.registerEmpresa.controls)
+    .filter(controlName => {
+      const control = this.registerEmpresa.get(controlName);
+      return control?.invalid && (control?.touched || control?.dirty);
+    });
   }
 }
