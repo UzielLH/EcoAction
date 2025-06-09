@@ -35,8 +35,8 @@
   </div>
 
   <!-- Modal de creación de meta -->
-<div *ngIf="mostrarFormulario" class="fixed inset-0 flex justify-center items-center z-50 overflow-y-auto">
-  <div class="bg-white p-8 rounded-xl shadow-xl w-96 max-w-md my-10 max-h-screen overflow-y-auto">
+<div *ngIf="mostrarFormulario" class="fixed inset-0 flex justify-center items-center z-50 backdrop-blur-md">
+  <div class="bg-white p-8 rounded-xl shadow-xl w-96 max-w-md my-10 max-h-[90vh] overflow-y-auto">
     <h1 class="text-3xl kanit-bold text-gray-900 text-center mb-6">Creación de metas</h1>
     <form [formGroup]="metaForm" (ngSubmit)="register()">
         <div class="mb-4">
