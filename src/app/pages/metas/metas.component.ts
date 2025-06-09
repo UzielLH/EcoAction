@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
@@ -44,6 +44,21 @@ export class MetasComponent implements OnInit {
   selectedFile: File | null = null;
   imagePreviewUrl: string | null = null; // Add this property
 
+  @HostListener('document:keydown.escape', ['$event'])
+  handleEscapeKey(event: KeyboardEvent) {
+    if (this.mostrarFormularioSaldo) {
+      this.mostrarFormularioSaldo = false;
+    }
+    if (this.mostrarFormularioDonacion) {
+      this.mostrarFormularioDonacion = false;
+    }
+    if (this.mostrarFormulario) {
+      this.mostrarFormulario = false;
+      this.metaForm.reset();
+      this.selectedFile = null;
+      this.imagePreviewUrl = null; // Reset the preview URL
+    }
+  }
 
   constructor(){
     this.metaForm = this.fb.group({
