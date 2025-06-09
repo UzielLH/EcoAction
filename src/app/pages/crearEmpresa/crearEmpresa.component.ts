@@ -171,42 +171,29 @@ handleFile(file: File): void {
       icon: 'error',
       title: 'Formato no válido',
       text: 'El archivo debe ser una imagen (JPG, PNG, etc.)',
-      confirmButtonColor: '#d33'
+      confirmButtonColor: '#10B981'
     });
     return;
   }
-  
-  // Validar tamaño (5MB máximo)
-  if (file.size > 5 * 1024 * 1024) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Imagen demasiado grande',
-      text: 'El archivo no debe superar los 5MB',
-      confirmButtonColor: '#d33'
-    });
-    return;
-  }
-  
-  // Guardar el archivo seleccionado
+
   this.selectedFile = file;
-  
-  // Actualizar control de formulario
-  this.registerEmpresa.patchValue({
-    file: file.name
-  });
-  this.registerEmpresa.markAsDirty();
-  
-  // Crear vista previa usando ChangeDetectorRef para actualización inmediata
+
   const reader = new FileReader();
   reader.onload = () => {
-    // Usar setTimeout para asegurar que Angular detecte el cambio
-    setTimeout(() => {
-      this.imagenPreview = reader.result as string;
-    }, 0);
+    this.imagenPreview = reader.result as string;
+    this.cdr.detectChanges();
   };
   reader.readAsDataURL(file);
-  this.cdr.detectChanges();
+
+  // ACTUALIZAR EL CONTROL DEL FORMULARIO AQUÍ
+  this.registerEmpresa.patchValue({
+    file: file
+  });
+
+  // Si estás usando validadores, marca el control como tocado para que valide
+  this.registerEmpresa.get('file')?.markAsTouched();
 }
+
 
 // Método para eliminar la imagen seleccionada
 removeImage(): void {
@@ -365,7 +352,7 @@ removeImage(): void {
     const fileInput = event.target as HTMLInputElement;
     if (fileInput.files && fileInput.files[0]) {
       const file = fileInput.files[0];
-      
+      this.handleFile(fileInput.files[0]);
       // Validar tipo de archivo
       if (!file.type.match('image/*')) {
         Swal.fire({
