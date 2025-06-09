@@ -82,6 +82,13 @@
           <p class="text-sm text-red-500 p-1 kanit-extralight">
             {{obtenerMensajesError('imagen')}}
           </p>
+          <!-- Image Preview - Add this section -->
+          <div *ngIf="imagePreviewUrl" class="mt-4 mb-4">
+            <label class="block text-gray-700 kanit-bold mb-2">Vista previa:</label>
+            <div class="border border-gray-200 rounded-lg p-2 bg-white">
+              <img [src]="imagePreviewUrl" alt="Vista previa de la imagen" class="max-w-full h-auto rounded-lg max-h-60 mx-auto">
+            </div>
+          </div>
         </div>
     
         <div class="flex justify-between mt-8">

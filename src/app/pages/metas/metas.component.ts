@@ -42,6 +42,8 @@ export class MetasComponent implements OnInit {
   SaldoForm!: FormGroup;
 
   selectedFile: File | null = null;
+  imagePreviewUrl: string | null = null; // Add this property
+
 
   constructor(){
     this.metaForm = this.fb.group({
@@ -393,6 +395,14 @@ registerDonation() {
 onFileSelected(event: any): void {
   const file = event.target.files[0];
   if (file) {
+    // Create preview URL
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreviewUrl = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+    
+    // Existing compression logic
     if (file.size > 10 * 1024 * 1024) {
       const options = {
         maxSizeMB: 10,
