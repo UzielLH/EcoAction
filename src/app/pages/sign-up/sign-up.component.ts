@@ -20,13 +20,13 @@ export class SignUpComponent {
   esUsuario: boolean = true; 
 
   constructor(){
-    this.registerUsuario=this.fb.group({
-      nombre: ['',  [Validators.required, Validators.minLength(2)]],
-      apellidos:['', [Validators.required, Validators.minLength(5)]],
-      username: ['', [Validators.required, Validators.minLength(5), forbiddenName()]],
+    this.registerUsuario = this.fb.group({
+      nombre: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^\S+$/)]],
+      apellidos: ['', [Validators.required, Validators.minLength(5), Validators.pattern(/^\S+$/)]],
+      username: ['', [Validators.required, Validators.minLength(5), forbiddenName(), Validators.pattern(/^\S+$/)]],
       fechaNacimiento: ['', [Validators.required]],
-      email: ['',[Validators.required, Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')]],
-      password: ['', [Validators.required, Validators.minLength(8)]]
+      email: ['', [Validators.required, Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')]],
+      password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^\S+$/)]]
     });
 
   }

@@ -1,3 +1,3 @@
 export const constApi = {
-    APIURL: 'http://175.1.45.189:8072/ecoaction/gatewayserver/'
+    APIURL: 'http://175.1.39.228:8072/ecoaction/gatewayserver/'
 }
