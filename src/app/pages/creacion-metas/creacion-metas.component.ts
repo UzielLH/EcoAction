@@ -9,6 +9,25 @@ import Swal from 'sweetalert2';
   styles: ``
 })
 export class CreacionMetasComponent {
+  imagenSeleccionada: string | ArrayBuffer | null = null;
+  archivoImagen!: File;
+
+  onFileChange(event: Event) {
+  const input = event.target as HTMLInputElement;
+
+  if (input.files && input.files.length > 0) {
+    const archivo = input.files[0];
+    this.archivoImagen = archivo;
+
+    const lector = new FileReader();
+    lector.onload = () => {
+      this.imagenSeleccionada = lector.result;
+    };
+    lector.readAsDataURL(archivo);
+  }
+}
+
+
   private fb=inject(FormBuilder);
   private zone = inject(NgZone);
   metaForm!: FormGroup;
@@ -43,11 +62,11 @@ export class CreacionMetasComponent {
     }
   }
   register() {
-    if (this.metaForm.invalid) {
+    if (this.metaForm.invalid || !this.archivoImagen) {
       this.metaForm.markAllAsTouched();
       Swal.fire({
         title: 'Error',
-        text: 'No se pudo crear la meta. Por favor, revise los campos o la conexión.',
+        text: 'No se pudo crear la meta. Revisa los campos y selecciona una imagen.',
         icon: 'error',
         timer: 2000,
         showConfirmButton: false
@@ -55,7 +74,13 @@ export class CreacionMetasComponent {
       return;
     }
 
-    console.log('Registrando...', this.metaForm.value);
+    const formData = new FormData();
+    formData.append('nombre', this.metaForm.get('nombre')?.value);
+    formData.append('cantidadMonedas', this.metaForm.get('cantidadMonedas')?.value);
+    formData.append('descripcion', this.metaForm.get('descripcion')?.value);
+    formData.append('imagen', this.archivoImagen);
+
+    console.log('FormData:', formData);
 
     Swal.fire({
       title: 'Meta creada',
@@ -65,6 +90,7 @@ export class CreacionMetasComponent {
       showConfirmButton: false
     });
   }
+
 
   obtenerMensajesError(controlName: string) {
     const control = this.metaForm.get(controlName);

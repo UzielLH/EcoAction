@@ -1,4 +1,4 @@
-<div class="meta-creation-container flex flex-col items-center mt-10">
+<div class="meta-creation-container bg-white rounded-xl shadow-xl p-8 w-full max-w-lg mx-auto mt-10">
   <h1 class="text-3xl kanit-bold text-gray-900 text-center flex-1">Creación de metas</h1>
   <form  [formGroup]="metaForm" class="w-full max-w-sm" (ngSubmit)="register()">
       <div class="form-group mb-4">
@@ -24,9 +24,10 @@
       </p>
       <div class="form-group mb-4">
         <label for="imagen" class="block text-gray-700 kanit-bold mb-2">Imagen:</label>
-        <input formControlName="imagen" type="file" id="imagen" name="imagen" accept=".jpg, .png" 
-               (change)="onFileSelected($event)" 
-               class="kanit-extralight shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        <input type="file" id="imagen" (change)="onFileChange($event)" accept=".jpg, .png" class="kanit-extralight shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+      </div>
+      <div *ngIf="imagenSeleccionada" class="mb-4">
+        <img [src]="imagenSeleccionada" alt="Vista previa" class="w-40 h-40 object-cover rounded-md shadow-md mx-auto">
       </div>
       <p class="text-sm text-red-500 p-1 kanit-extralight">
         {{obtenerMensajesError('imagen')}}
