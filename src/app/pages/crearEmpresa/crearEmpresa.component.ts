@@ -466,6 +466,8 @@ removeImage(): void {
         timer: 2000,
         showConfirmButton: false
       });
+      // Reset the form, image preview and other UI elements
+    this.resetForm();
     } catch (error: any) {
       const errorMessage = error?.message || 'Ocurrió un error al crear la empresa. Por favor, inténtalo de nuevo.';
       Swal.fire({
@@ -535,4 +537,41 @@ removeImage(): void {
       return control?.invalid && (control?.touched || control?.dirty);
     });
   }
+
+  // Add this new method to handle form reset
+resetForm(): void {
+  // Reset the form to initial values
+  this.registerEmpresa.reset();
+  
+  // Clear image preview and selected file
+  this.imagenPreview = null;
+  this.selectedFile = null;
+  
+  // Reset file input
+  const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+  if (fileInput) {
+    fileInput.value = '';
+  }
+  
+  // Reset map marker to default position if needed
+  if (this.marker && this.mapa) {
+    // Create proper LngLat object instead of array
+    const lng = -96.7210;
+    const lat = 17.019;
+    
+    // Use individual coordinates to avoid type issues
+    this.marker.setLngLat([lng, lat]);
+    this.mapa.flyTo({
+      center: [lng, lat],
+      zoom: 12,
+      duration: 1000
+    });
+  }
+  
+  // Reset map initialization state
+  this.mapaInicializado = true;
+  
+  // Apply change detection to update the UI
+  this.cdr.detectChanges();
+}
 }
