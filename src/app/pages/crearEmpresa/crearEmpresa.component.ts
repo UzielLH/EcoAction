@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forbiddenName } from '../../validators/forbiddenName';
 import { CommonModule } from '@angular/common';
@@ -68,7 +68,7 @@ import mapboxgl from 'mapbox-gl';
       object-fit: cover;
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CrearEmpresaComponent implements OnInit, OnDestroy { 
   // Referencia para el campo de dirección para manejar el evento Enter
@@ -89,7 +89,7 @@ export class CrearEmpresaComponent implements OnInit, OnDestroy {
   showPassword = false;
   keyboardListener: any;
   
-  constructor() {
+  constructor(private cdr: ChangeDetectorRef) {
     this.registerEmpresa = this.fb.group({
       nombre: ['',  [Validators.required, Validators.minLength(5)]],
       username: ['', [Validators.required, Validators.minLength(5), forbiddenName()]],
@@ -205,6 +205,7 @@ handleFile(file: File): void {
     }, 0);
   };
   reader.readAsDataURL(file);
+  this.cdr.detectChanges();
 }
 
 // Método para eliminar la imagen seleccionada
