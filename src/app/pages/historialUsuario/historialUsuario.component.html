@@ -4,34 +4,20 @@
     <p class="subtitle kanit-light">Revisa todas tus actividades financieras en EcoAction</p>
   </div>
   
-  <div class="loading-state" *ngIf="!transaccionesCargadas">
+  <!-- Estado cuando no hay transacciones -->
+  <div class="loading-state" *ngIf="!loading && transaccionesCargadas && transacciones.length === 0">
     <p class="kanit-regular">Aún no tienes transacciones registradas.</p>
+  </div>
+  
   <!-- Estado de carga -->
-  <div class="loading-state" *ngIf="loading && transaccionesCargadas">
+  <div class="loading-state" *ngIf="loading">
     <div class="spinner"></div>
     <p class="kanit-regular">Cargando transacciones...</p>
   </div>
 
-  
-  <!-- Mensaje de error -->
-  <div class="error-message" *ngIf="error">
-    <i class="fas fa-exclamation-circle"></i>
-    <p class="kanit-medium">{{ error }}</p>
-    <button class="retry-button kanit-medium" (click)="cargarTransacciones('a7d41ec0-04c2-43ec-bbe3-94b143bcbc4f')">
-      Reintentar
-    </button>
-  </div>
-
   <!-- Lista de transacciones -->
-  <div class="transactions-list" *ngIf="!loading && !error">
-    <!-- Estado vacío -->
-    <div class="empty-state" *ngIf="transacciones.length === 0">
-      <i class="fas fa-wallet"></i>
-      <h2 class="kanit-semibold">No hay transacciones</h2>
-      <p class="kanit-light">Aún no has realizado ninguna transacción en EcoAction</p>
-    </div>
-
-    <!-- Tarjetas de transacciones (cambiando a transaccionesFiltradas) -->
+  <div class="transactions-list" *ngIf="!loading && !error && transacciones.length > 0">
+    <!-- Tarjetas de transacciones -->
     <div class="transaction-card" *ngFor="let tx of transaccionesFiltradas" 
          [ngClass]="getColorForTransactionType(tx.tipo)"
          (click)="mostrarDetalles(tx)">
@@ -54,7 +40,14 @@
     </div>
   </div>
 
-  <!-- Añadir controles de paginación -->
+  <!-- Estado vacío (versión alternativa con ícono) -->
+  <div class="empty-state" *ngIf="!loading && !error && transaccionesCargadas && transacciones.length === 0">
+    <i class="fas fa-wallet"></i>
+    <h2 class="kanit-semibold">No hay transacciones</h2>
+    <p class="kanit-light">Aún no has realizado ninguna transacción en EcoAction</p>
+  </div>
+
+  <!-- Controles de paginación -->
   <div class="pagination-container" *ngIf="transacciones.length > 0">
     <div class="pagination">
       <button 
@@ -87,13 +80,13 @@
     </p>
   </div>
 
-  <!-- Actualizar el footer -->
+  <!-- Footer con información de página -->
   <div class="footer" *ngIf="transacciones.length > 0">
     <p class="kanit-light">Página {{ paginaActual }} de {{ totalPaginas }}</p>
   </div>
   
   <!-- Modal para detalles de transacción -->
-  <div class="transaction-detail-modal" *ngIf="transaccionSeleccionada">
+  <div class="transaction-detail-modal" *ngIf="transaccionSeleccionada" (keydown.escape)="cerrarDetalles()">
     <div class="modal-overlay" (click)="cerrarDetalles()"></div>
     <div class="modal-container" [ngClass]="getColorForTransactionType(transaccionSeleccionada.tipo)">
       <div class="modal-header">
@@ -131,14 +124,15 @@
           
           <div class="detail-row">
             <div class="detail-label kanit-medium">Monto:</div>
-            <div class="detail-value kanit-bold" [class.positive]="transaccionSeleccionada.tipo === 'RECARGA' || transaccionSeleccionada.tipo === 'TRANSFERENCIA'" 
+            <div class="detail-value kanit-bold" 
+                 [class.positive]="transaccionSeleccionada.tipo === 'RECARGA' || transaccionSeleccionada.tipo === 'TRANSFERENCIA'" 
                  [class.negative]="transaccionSeleccionada.tipo !== 'RECARGA' && transaccionSeleccionada.tipo !== 'TRANSFERENCIA'">
-              {{ transaccionSeleccionada.tipo === 'RECARGA' || 'TRANSFERENCIA' ? '+' : '-' }} ${{ transaccionSeleccionada.monto.toFixed(2) }}
+              {{ (transaccionSeleccionada.tipo === 'RECARGA' || transaccionSeleccionada.tipo === 'TRANSFERENCIA') ? '+' : '-' }} ${{ transaccionSeleccionada.monto.toFixed(2) }}
             </div>
           </div>
           
           <div class="detail-row">
-            <div class="detail-label kanit-medium">Usuario ID:</div>
+            <div class="detail-label kanit-medium">Usuario:</div>
             <div class="detail-value kanit-regular">{{ transaccionSeleccionada.username }}</div>
           </div>
         </div>
@@ -232,6 +226,16 @@
         </button>
       </div>
     </div>
+  </div>
+  
+  <!-- Información de debug (solo en desarrollo) -->
+  <div class="debug-info" style="margin-top: 20px; padding: 10px; background: #f5f5f5; border-radius: 4px; display: none;">
+    <p><strong>Debug Info:</strong></p>
+    <p>transaccionSeleccionada: {{ transaccionSeleccionada ? 'Presente' : 'Null' }}</p>
+    <p>tipo: {{ transaccionSeleccionada?.tipo }}</p>
+    <p>loading: {{ loading }}</p>
+    <p>transaccionesCargadas: {{ transaccionesCargadas }}</p>
+    <p>transacciones.length: {{ transacciones.length }}</p>
   </div>
 </div>
 
@@ -347,6 +351,7 @@
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
     transition: transform 0.2s, box-shadow 0.2s;
     border-left: 5px solid transparent;
+    cursor: pointer;
   }
 
   .transaction-card:hover {
@@ -493,6 +498,7 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(3px);
+    z-index: 1000;
   }
   
   .modal-container {
@@ -671,11 +677,6 @@
     color: #c62828;
   }
   
-  /* Estilos para hover en las tarjetas de transacciones */
-  .transaction-card {
-    cursor: pointer;
-  }
-  
   /* Responsive para el modal */
   @media (max-width: 768px) {
     .modal-container {
@@ -695,65 +696,66 @@
       max-height: calc(80vh - 130px);
     }
   }
-  .pagination-container {
-  margin: 1.5rem 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.pagination {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.pagination-button {
-  min-width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
-  background-color: white;
-  color: #616161;
-  font-family: 'Kanit', sans-serif;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.pagination-button:hover:not(:disabled):not(.active) {
-  background-color: #f5f5f5;
-}
-
-.pagination-button.active {
-  background-color: #2e7d32;
-  color: white;
-  border-color: #2e7d32;
-}
-
-.pagination-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pagination-info {
-  color: #757575;
-  font-size: 0.9rem;
-  margin: 0;
-}
-
-@media (max-width: 768px) {
-  .pagination {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
   
-  .pagination-info {
-    text-align: center;
+  .pagination-container {
+    margin: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
   }
-}
+
+  .pagination {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .pagination-button {
+    min-width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+    background-color: white;
+    color: #616161;
+    font-family: 'Kanit', sans-serif;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .pagination-button:hover:not(:disabled):not(.active) {
+    background-color: #f5f5f5;
+  }
+
+  .pagination-button.active {
+    background-color: #2e7d32;
+    color: white;
+    border-color: #2e7d32;
+  }
+
+  .pagination-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pagination-info {
+    color: #757575;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .pagination {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .pagination-info {
+      text-align: center;
+    }
+  }
 </style>
